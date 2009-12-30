@@ -1,0 +1,23 @@
+# sitemap.yaml
+#
+# This file is used to configure the site in the Sodapop framework
+
+title: Ecommerce Webapp
+description: |
+  This web application lets users manage their online stores.
+navigation:
+  - title: Admin
+    url: admin/index
+    sections:
+      - title: Users
+        url: users/index
+      - title: Roles
+        url: roles/index
+  - title: Orders
+    url: orders/index
+  - title: Customers
+    url: customers/index
+  - title: Reports
+    url: reports/index
+available_models:
+  [ orders, customers, products ]

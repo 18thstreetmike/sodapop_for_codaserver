@@ -1,0 +1,112 @@
+# models.yaml
+#
+# This file provides additional data about database model objects beyond
+# that which is available in the schema
+
+orders:
+  list_fields:
+    - name: id
+      link: orders/view/:id
+    - label: Customer Name
+      concat: customer_id.last_name + ', ' + customer_id.first_name
+      link: customers/view/:customer_id
+    - name: status
+    - name: create_date
+    - name: ship_date
+  list_filters:
+    - field: status
+      include_all: true
+      default:
+    - type: search
+  list_filter_label: Search
+  override_form: true
+  field_groups:
+    - group: Customer Information
+      fields:
+        - name: customer_id
+          visualization: editor
+    - group: Shipping Address
+      fields:
+        - name: shipping_address_id
+          visualization: editor
+    - group: Status Information
+      fields:
+        - name: status
+          visualization: readonly
+        - name: ship_date
+          visualization: readonly
+        - name: cancel_date
+          visualization: readonly
+        - name: notes
+order_items:
+  list_fields:
+    - name: product
+      link: products/view/:product_id
+    - name: quantity
+    - name: price
+    - name: status
+    - label: Line Total
+      calc: price * quantity
+  override_form: true
+  inline_form: true
+  field_groups:
+    - group: Item Information
+      fields:
+        - name: product_id
+          visualization: select
+          where: status IN ('stocked', 'backordered')
+          order: product_name ASC
+          onchange: price.value = product_id.price
+        - name: quantity
+        - name: price
+customers:
+  list_fields:
+    - name: id
+      link: customers/view/:id
+    - name: first_name
+    - name: last_name
+    - name: email_address
+    - name: billing_address_id.state_prov
+    - name: billing_address_id.country
+  override_form: true
+  list_filters:
+    - type: search
+  list_filter_label: Search
+  field_groups:
+    - group: Person Information
+      fields:
+        - name: first_name
+        - name: last_name
+        - name: email_address
+    - group: Billing Address
+      fields:
+        - name: billing_address_id
+          visualization: editor
+    - group: Shipping Address
+      fields:
+        - name: shipping_address_id
+          visualization: editor
+products:
+  list_fields:
+    - name: id
+      link: products/view/:id
+    - name: product_name
+    - name: price
+    - name: status
+  override_form: true
+  list_filters:
+    - field: status
+      include_all: true
+      default:
+    - type: search
+  list_filter_label: Search
+  field_groups:
+    - group: Product Information
+      fields:
+        - name: product_name
+        - name: description
+        - name: price
+        - name: image_url
+        - name: expected_stock_date
+addresses:
+  override_form: false

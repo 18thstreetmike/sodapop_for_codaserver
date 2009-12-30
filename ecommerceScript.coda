@@ -1,0 +1,131 @@
+# Coda script for ecommerce app
+
+CREATE USER mike IDENTIFIED BY 'password' (
+	FIRST_NAME = 'Mike', 
+	LAST_NAME = 'Arace', 
+	ORGANIZATION = '18th Street Software, LLC'
+);
+
+CREATE DATASOURCE ecommerce_dev DISPLAYED AS 'Ecommerce Development' (
+	HOSTNAME = '127.0.0.1', 
+	USERNAME = 'ecommerce', 
+	PASSWORD = 'password', 
+	SCHEMA = 'ecommerce_dev', 
+	DRIVER = 'org.codalang.codaserver.mysqldriver.MySQLDriver'
+) USING ADMIN 'root':'';
+
+CREATE APPLICATION ecommerce DISPLAYED AS 'Ecommerce' 
+	ON DATASOURCE ecommerce_dev PREFIX c_;
+	
+CREATE TABLE addresses DISPLAYED AS 'Addresses' IN APPLICATION ecommerce WITH SOFT DELETE (
+     address STRING DISPLAYED AS 'Address' NOT NULL, 
+     address_cont STRING DISPLAYED 'Address (Con't)' NULL, 
+     city STRING DISPLAYED AS 'City' NOT NULL, 
+     state_prov STRING DISPLAYED AS 'State/Province' NOT NULL, 
+     country STRING DISPLAYED AS 'Country' NOT NULL, 
+     postal_code STRING DISPLAYED AS 'Postal Code' NOT NULL
+);
+
+CREATE TABLE customers DISPLAYED AS 'Customers' IN APPLICATION ecommerce WITH SOFT DELETE (
+	first_name STRING DISPLAYED AS 'First Name' NOT NULL,
+	last_name STRING DISPLAYED AS 'Last Name' NOT NULL,
+	email_address STRING DISPLAYED AS 'Email' NOT NULL,
+	billing_address_id REFERENCE TO addresses DISPLAYED AS 'Billing Address' NOT NULL,
+	shipping_address_id REFERENCE TO addresses DISPLAYED AS 'Shipping Address' NOT NULL 
+);
+
+CREATE FORM products DISPLAYED AS 'Products' IN APPLICATION ecommerce (
+	product_name STRING DISPLAYED AS 'Product Name',
+	description LONGSTRING DISPLAYED AS 'Description',
+	price FLOAT DISPLAYED AS 'Price',
+	image_url STRING DISPLAYED AS 'URL to Image',
+	withdraw_date TIMESTAMP DISPLAYED AS 'Date Withdraawn',
+	expected_stock_date TIMESTAMP DISPLAYED AS 'Expected Stock Date'
+) WITH STATUSES
+	(stocked DISPLAYED AS 'Stocked', stock DISPLAYED AS 'Stock' INITIAL),
+	(backordered DISPLAYED AS 'Backordered', backorder DISPLAYED AS 'Backorder'),
+	(withdrawn DISPLAYED AS 'Withdrawn', withdraw DISPLAYED AS 'Withdraw');
+
+CREATE FORM orders DISPLAYED AS 'Orders' IN APPLICATION ecommerce (
+	customer_id REFERENCE TO customers DISPLAYED AS 'Customer',
+	shipping_address_id REFERENCE TO addresses DISPLAYED AS 'Address',
+	ship_date TIMESTAMP DISPLAYED AS 'Ship Date',
+	cancel_date TIMESTAMP DISPLAYED AS 'Cancel Date',
+	order_total FLOAT DISPLAYED AS 'Order Total',
+	notes LONGSTRING DISPLAYED AS 'Notes'
+) WITH STATUSES 
+	(shipping DISPLAYED AS 'Shipping', ship DISPLAYED AS 'Ship'),
+	(cancelled DISPLAYED AS 'Cancelled', cancel DISPLAYED AS 'Cancel'),
+	(backordered DISPLAYED AS 'Backordered', backorder DISPLAYED AS 'Backorder'),
+	(pending DISPLAYED AS 'Pending', construct DISPLAYED AS 'Create' INITIAL);
+	
+CREATE SUBFORM order_items OF orders DISPLAYED AS 'Items' IN APPLICATION ecommerce (
+	product_id REFERENCE TO products DISPLAYED AS 'Product',
+	price FLOAT DISPLAYED AS 'Price',
+	quantity INTEGER DISPLAYED AS 'Quantity',
+	remove_date TIMESTAMP DISPLAYED AS 'Date Removed'
+) WITH STATUSES
+	(ordered DISPLAYED AS 'Ordered', append DISPLAYED AS 'Append' INITIAL),
+	(backordered DISPLAYED AS 'Backordered', backorder DISPLAYED AS 'Backorder'),
+	(shipped DISPLAYED AS 'Shipped', ship DISPLAYED AS 'Ship'),
+	(cancelled DISPLAYED AS 'Cancelled', cancel DISPLAYED AS 'Cancel');
+
+CREATE USER public_user IDENTIFIED BY 'public_password' (first_name = 'Public', last_name = 'User');
+	
+GRANT MANAGE_USERS ON ecommerce TO mike; 
+
+GRANT CONNECT ON ecommerce.dev TO mike;
+
+GRANT MANAGE_ROLES ON ecommerce TO mike;
+
+CREATE PERMISSION view_reports DISPLAYED AS 'View Reports' IN APPLICATION ecommerce;
+
+GRANT view_reports IN ecommerce TO ecommerce_user;
+
+GRANT view_reports IN ecommerce TO public_ecommerce_user;
+
+CREATE ROLE ecommerce_user DISPLAYED AS 'Ecommerce User' IN APPLICATION ecommerce;
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE ecommerce.customers TO ecommerce_user;
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE ecommerce.addresses TO ecommerce_user;
+
+
+GRANT VIEW, UPDATE, CALL ON FORM ecommerce.products:stocked TO ecommerce_user;
+
+GRANT VIEW, UPDATE, CALL ON FORM ecommerce.products:backordered TO ecommerce_user;
+
+GRANT VIEW, UPDATE, CALL ON FORM ecommerce.products:withdrawn TO ecommerce_user;
+
+
+GRANT VIEW, UPDATE, CALL ON FORM ecommerce.orders:shipping TO ecommerce_user;
+
+GRANT VIEW, UPDATE, CALL ON FORM ecommerce.orders:backordered TO ecommerce_user;
+
+GRANT VIEW, UPDATE, CALL ON FORM ecommerce.orders:cancelled TO ecommerce_user;
+
+GRANT VIEW, UPDATE, CALL ON FORM ecommerce.orders:pending TO ecommerce_user;
+
+
+GRANT VIEW, UPDATE, CALL ON FORM ecommerce.order_items:ordered TO ecommerce_user;
+
+GRANT VIEW, UPDATE, CALL ON FORM ecommerce.order_items:shipped TO ecommerce_user;
+
+GRANT VIEW, UPDATE, CALL ON FORM ecommerce.order_items:backordered TO ecommerce_user;
+
+GRANT VIEW, UPDATE, CALL ON FORM ecommerce.order_items:cancelled TO ecommerce_user;
+
+
+GRANT ROLE ecommerce_user ON ecommerce.dev TO mike;
+
+GRANT CONNECT ON ecommerce.dev TO public_user;
+
+CREATE ROLE public_ecommerce_user DISPLAYED AS 'Public Ecommerce User' IN APPLICATION ecommerce;
+
+GRANT VIEW ON FORM ecommerce.products:stocked TO public_ecommerce_user;
+
+GRANT VIEW ON FORM ecommerce.products:backordered TO public_ecommerce_user;
+
+GRANT VIEW ON FORM ecommerce.products:withdrawn TO public_ecommerce_user;
+
+GRANT ROLE public_ecommerce_user ON ecommerce.dev TO public_user;

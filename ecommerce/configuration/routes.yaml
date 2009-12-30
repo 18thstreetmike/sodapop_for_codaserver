@@ -1,0 +1,10 @@
+# routes.yaml
+#
+# This file is used to specify changes to Sodapop's regular URL mapping behavior
+
+routes:
+    - from: viewuser/:userid
+      controller: user
+      action: view
+    - from: viewpic/:image
+      url: http://images.test.com/:image

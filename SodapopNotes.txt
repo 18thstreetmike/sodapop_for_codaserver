@@ -1,0 +1,46 @@
+/ecommerce
+	/application
+		/controllers
+		/models
+		/views
+		/layouts
+	/library
+		/Ecommerce
+	/public
+		/styles
+		/scripts
+		index.php
+	Bootstrap.php
+/library
+	/Sodapop
+	/Codaserver
+	
+
+index.php
+- determine environment
+- load config file
+- bootstrap and start the Sodapop_Application.
+
+Sodapop/Application.php
+- receive the config during construction, store it locally in a public variable.
+- locate the sitemap.conf and routes.conf files from the config, store them in public variables.
+- instantiate the Sodapop_View specified in the config (or Toasty by default), store it in the application in a public variable.
+- load the Sodapop_Model_Connection specified in the config.
+- if the user is not logged in, create a new Sodapop_User for the public user specified in the config if one hasn't been created yet and store it in the session and in the local user public variable. If it has been, grab it from the session and store it there.  If the user is logged in, grab the Sodapop_User from the session and store it in the local public user variable. 
+- run through the bootstrap method, which loads the Sodapop_Bootstrap class with the application reference as its contructor parameter.
+
+Sodapop/Bootstrap.php subclass / Bootstrap.php
+- look for the following functions and run them in the appropriate order
+	- initAutoload
+	- initRoutes
+	- initSitemap
+	- initModel
+	- initView
+
+Sodapop/Application.php
+- store the Sodapop_User variables back to the session.
+- execute the run() method
+- determine the route from the request
+- check the local routes table from the routes variable to determine if an alternative is needed. if so, do it.
+- check the controllers directory (specified in the config) to see if there is a controller matching that of the route. if so, go to the appropriate action (or index if none is specified) and run it.
+- check the sitemap to see if the app has a form or table visible to this user matching that requested. If so, create a default controller for that form or table and render it.

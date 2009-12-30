@@ -1,0 +1,12 @@
+SetEnv APPLICATION_ENVIRONMENT development
+
+php_value include_path ".:../../library/:../library"
+php_value display_errors 1
+php_value error_reporting E_ALL
+
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} -s [OR]
+RewriteCond %{REQUEST_FILENAME} -l [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^.*$ - [NC,L]
+RewriteRule ^.*$ index.php [NC,L]
