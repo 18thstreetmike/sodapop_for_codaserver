@@ -1,0 +1,28 @@
+<application>
+    <metadata>
+	<title><?= $this->application->title ?></title>
+	<?php foreach ($this->stylesheets as $stylesheet) { ?>
+	    <stylesheet file="<?= $this->baseUrl ?><?= $stylesheet ?>" />
+	<?php } ?>
+    </metadata>
+    <screen>
+	<header>
+	    <logo title="<?= $this->application->title ?>" />
+	    <topnav>
+		<a href="<?= $this->baseUrl ?>/users/<?= strtolower($this->application->user->user_name) ?>">My Account</a> | <a href="<?= $this->baseUrl ?>/authentication/logout">Logout</a>
+	    </topnav>
+	    <navtabs current="<?= $this->currentTab ?>">
+		<?php if (is_array($this->tabs)) { ?>
+		    <?php foreach ($this->tabs as $tab) { ?>
+			<navtab id="<?= $tab->id ?>" label="<?= $tab->label ?>" url="<?= $this->baseUrl.'/'.$tab->url ?>" />
+		    <?php } ?>
+		<?php } else { ?>
+		    <navtab id="<?= $tabs->id ?>" label="<?= $tabs->label ?>" url="<?= $this->baseUrl.'/'.$tabs->url ?>" />
+		<?php } ?>
+	    </navtabs>
+	</header>
+	<content>
+	    <?= $this->viewContent ?>
+	</content>
+    </screen>
+</application>
