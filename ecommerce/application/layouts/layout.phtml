@@ -9,7 +9,25 @@
 	<header>
 	    <logo title="<?= $this->application->title ?>" />
 	    <topnav>
-		<a href="<?= $this->baseUrl ?>/users/<?= strtolower($this->application->user->user_name) ?>">My Account</a> | <a href="<?= $this->baseUrl ?>/authentication/logout">Logout</a>
+		<?php if ($this->loggedIn) { ?>
+		    <a href="<?= $this->baseUrl ?>/users/<?= strtolower($this->application->user->user_name) ?>">My Account</a> | <a href="<?= $this->baseUrl ?>/authentication/logout">Logout</a>
+		<?php } else { ?>
+		    <form action="<?= $this->baseUrl ?>/authentication/login" method="post">
+			<text label="Username" name="username" id="username" inline="true" />
+			<password label="Password" name="password" id="password" inline="true" />
+			<submit label="Login" inline="true" />
+			<hidden id="controller" value="<?= $this->controller ?>" />
+			<hidden id="action" value="<?= $this->action ?>" />
+			<?php foreach ($this->request->variables() as $name => $value ) { ?>
+			    <hidden id="forward_<?= $name ?>" value="<?= $value ?>" />
+			<?php } ?>
+		    </form>
+		    <?php if ($this->authenticationErrorMessage) { ?>
+			<errorbox>
+			    <?= $this->authenticationErrorMessage ?>
+			</errorbox>
+		    <?php } ?>
+		<?php } ?>
 	    </topnav>
 	    <navtabs current="<?= $this->currentTab ?>">
 		<?php if (is_array($this->tabs)) { ?>

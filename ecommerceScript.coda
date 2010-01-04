@@ -59,6 +59,8 @@ CREATE FORM orders DISPLAYED AS 'Orders' IN APPLICATION ecommerce (
 	(backordered DISPLAYED AS 'Backordered', backorder DISPLAYED AS 'Backorder'),
 	(pending DISPLAYED AS 'Pending', construct DISPLAYED AS 'Create' INITIAL);
 	
+ALTER FORM orders ADD FIELD tracking_numbers STRING ARRAY DISPLAYED AS 'Tracking Numbers';
+
 CREATE SUBFORM order_items OF orders DISPLAYED AS 'Items' IN APPLICATION ecommerce (
 	product_id REFERENCE TO products DISPLAYED AS 'Product',
 	price FLOAT DISPLAYED AS 'Price',

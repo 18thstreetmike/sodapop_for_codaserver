@@ -1,3 +1,5 @@
+/Applications/MAMP/htdocs/sodapop/ecommerce/application/views/index/index.phtml
+
 /ecommerce
 	/application
 		/controllers
@@ -36,6 +38,7 @@ Sodapop/Bootstrap.php subclass / Bootstrap.php
 	- initSitemap
 	- initModel
 	- initView
+	- initUser
 
 Sodapop/Application.php
 - store the Sodapop_User variables back to the session.

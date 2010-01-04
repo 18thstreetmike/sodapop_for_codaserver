@@ -1,1 +1,5 @@
-<p>Welcome to the web application!</p>
+<div style="padding: 1em;">
+    <h3>Welcome, <?= $this->application->user->first_name ?>!</h3>
+    <p><?= $this->application->description ?></p>
+    <pre><?= var_dump($this->orders) ?></pre>
+</div>

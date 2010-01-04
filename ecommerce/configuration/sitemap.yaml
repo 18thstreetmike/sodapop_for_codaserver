@@ -6,18 +6,33 @@ title: Ecommerce Webapp
 description: |
   This web application lets users manage their online stores.
 navigation:
-  - title: Admin
-    url: admin/index
-    sections:
-      - title: Users
-        url: users/index
-      - title: Roles
-        url: roles/index
-  - title: Orders
+  - id: index
+    label: Home
+    url: index
+  - id: orders
+    label: Orders
     url: orders/index
-  - title: Customers
+    model: orders
+  - id: customers
+    label: Customers
     url: customers/index
-  - title: Reports
-    url: reports/index
+    model: customers
+  - id: products
+    label: Products
+    url: products/index
+    model: products
+  - id: admin
+    label: Admin
+    url: admin/index
+    application_permission: manage_users
+    sections:
+      - id: admin_users
+        label: Users
+        url: users/index
+        application_permission: manage_users
+      - id: admin_roles
+        label: Roles
+        url: roles/index
+        application_permission: manage_users
 available_models:
   [ orders, customers, products ]
