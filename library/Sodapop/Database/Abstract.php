@@ -50,4 +50,9 @@ abstract class Sodapop_Database_Abstract {
      * Closes the database connection.
      */
     public abstract function destroy();
+
+    public abstract function defineTableClass($tableName);
+
+    public abstract function defineFormClass($formName);
+
 }

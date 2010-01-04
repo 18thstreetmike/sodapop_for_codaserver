@@ -5,6 +5,10 @@ php_value display_errors 1
 php_value error_reporting E_ALL
 
 RewriteEngine On
+RewriteRule ^images/.*$ themer.php
+RewriteRule ^styles/.*$ themer.php
+RewriteRule ^scripts/.*$ themer.php
+
 RewriteCond %{REQUEST_FILENAME} -s [OR]
 RewriteCond %{REQUEST_FILENAME} -l [OR]
 RewriteCond %{REQUEST_FILENAME} -d

@@ -42,6 +42,8 @@ class Sodapop_User {
     public function  __get($name) {
 	if ($name == 'username') {
 	    return $this->username;
+	} else if ($name == 'connection') {
+	    return $this->connection;
 	} else {
 	    return $this->properties[strtoupper($name)];
 	}
@@ -97,5 +99,23 @@ class Sodapop_User {
 
     public function hasServerPermission($permission) {
 	return in_array(strtoupper($permission), $this->serverPermissions);
+    }
+
+    public function hasModelViewPermission($modelName) {
+	if (key_exists(strtoupper($modelName), $this->tablePermissions)) {
+	    if (in_array('SELECT', $this->tablePermissions[strtoupper($modelName)])) {
+		return true;
+	    } else {
+		return false;
+	    }
+	} else if (key_exists(strtoupper($modelName), $this->formPermissions)) {
+	    foreach ($this->formPermissions[strtoupper($modelName)] as $formStatus) {
+		if(in_array('VIEW', $formStatus)) {
+		    return true;
+		}
+	    }
+	    return false;
+	}
+	return false;
     }
 }

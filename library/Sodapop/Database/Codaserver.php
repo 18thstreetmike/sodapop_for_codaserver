@@ -202,7 +202,11 @@ class Sodapop_Database_Codaserver extends Sodapop_Database_Abstract {
 
 	$errors = codaserver_errors();
 	if ($errors) {
-	    throw new Sodapop_Database_Exception('Some errors occurred', 3, $errors);
+	    if (count($errors) == 1) {
+		throw new Sodapop_Database_Exception($errors[0]['errormessage'], $errors[0]['errorcode']);
+	    } else {
+		throw new Sodapop_Database_Exception('Some errors occurred', 3, $errors);
+	    }
 	} else {
 	    return $result;
 	}
@@ -220,7 +224,11 @@ class Sodapop_Database_Codaserver extends Sodapop_Database_Abstract {
 
 	$errors = codaserver_errors();
 	if ($errors) {
-	    throw new Sodapop_Database_Exception('Some errors occurred', 3, $errors);
+	    if (count($errors) == 1) {
+		throw new Sodapop_Database_Exception($errors[0]['errormessage'], $errors[0]['errorcode']);
+	    } else {
+		throw new Sodapop_Database_Exception('Some errors occurred', 3, $errors);
+	    }
 	} else {
 	    return $result;
 	}
@@ -235,7 +243,11 @@ class Sodapop_Database_Codaserver extends Sodapop_Database_Abstract {
 
 	$errors = codaserver_errors();
 	if ($errors) {
-	    throw new Sodapop_Database_Exception('Some errors occurred', 3, $errors);
+	    if (count($errors) == 1) {
+		throw new Sodapop_Database_Exception($errors[0]['errormessage'], $errors[0]['errorcode']);
+	    } else {
+		throw new Sodapop_Database_Exception('Some errors occurred', 3, $errors);
+	    }
 	} else {
 	    return $result;
 	}
@@ -250,10 +262,38 @@ class Sodapop_Database_Codaserver extends Sodapop_Database_Abstract {
 
 	$errors = codaserver_errors();
 	if ($errors) {
-	    throw new Sodapop_Database_Exception('Some errors occurred', 3, $errors);
+	    if (count($errors) == 1) {
+		throw new Sodapop_Database_Exception($errors[0]['errormessage'], $errors[0]['errorcode']);
+	    } else {
+		throw new Sodapop_Database_Exception('Some errors occurred', 3, $errors);
+	    }
 	} else {
 	    return $result;
 	}
     }
+
+    public function defineTableClass($tableName) {
+	$className = Sodapop_Inflector::underscoresToCamelCaps($tableName, false);
+	$overriddenFunctions = <<<OVER
+	    public function loadData() {
+		\$result = \$_SESSION['user']->connection->runQuery("SELECT * FROM \$tableName WHERE ID = '".\$this->id."' ");
+		if (count(\$result) > 0) {
+		    for(\$i = 0; \$i < count(\$result['columns']); \$i++) {
+			\$this->fields[Sodapop_Inflector::underscoresToCamelCaps(\$result['columns'][\$i]['columnname'])] = \$result['data'][0][\$i];
+		    }
+		}
+		\$this->lazyLoaded = true;
+	    }
+
+	    public function getSubtableChildIds(\$subtableName, \$parentRowId) {
+		return \$_SESSION['user']->connection->runQuery("SELECT id FROM ".\$subtableName." WHERE parent_table_id = '".\$parentRowId."'");
+	    }
+OVER;
+    }
+
+    public function defineFormClass($formName) {
+	
+    }
+
 }
 

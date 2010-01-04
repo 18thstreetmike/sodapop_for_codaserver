@@ -22,37 +22,16 @@ class Sodapop_Application {
 
     public $models = null;
 
+    public $environment = null;
+
     protected $view = null;
 
     public function __construct($environment, $config) {
-	// load the config
-	$loadOrder = array();
-	switch ($environment){
-	    case 'development':
-		$loadOrder[] = 'development';
-	    case 'testing':
-		$loadOrder[] = 'testing';
-	    case 'production':
-		$loadOrder[] = 'production';
-		break;
-	}
+	$this->environment = $environment;
 
-	$this->config = array();
-	for ($i = count($loadOrder) - 1; $i >= 0; $i--) {
-	    foreach($config[$loadOrder[$i]] as $attribute => $value) {
-		$value = str_replace('APPLICATION_ROOT', str_replace('/public/index.php', '', $_SERVER['SCRIPT_FILENAME']), $value);
-		$this->config[$attribute] = $value;
-	    }
-	}
-	if (!isset($this->config['bootstrap.file_path'])) {
-	    $this->config['bootstrap.file_path'] = str_replace('/public/index.php', '', $_SERVER['SCRIPT_FILENAME']).'/Bootstrap.php';
-	}
-	if (!isset($this->config['controller.directory'])) {
-	    $this->config['controller.directory'] = str_replace('/public/index.php', '', $_SERVER['SCRIPT_FILENAME']).'/application/controllers';
-	}
+	$this->config = Sodapop_Application::parseIniFile($environment, $config, str_replace('/public/index.php', '', $_SERVER['SCRIPT_FILENAME']));
 
-
-
+	
 	// load the routes
 	$routesFilePath = '../configuration/routes.yaml';
 	if (array_key_exists('routes.file_path', $this->config)) {
@@ -106,14 +85,14 @@ class Sodapop_Application {
 	}
 
 	$this->view = new $viewClass($viewConfig, $this);
+	$this->view->init();
 
 	// initialize the user
 	$databaseClass = 'Sodapop_Database_Codaserver';
 	if (array_key_exists('model.database.driver', $this->config)) {
 	    $databaseClass = $this->config['model.database.driver'];
 	}
-	
-	if (isset($_SESSION['user']) && $_SESSION['user'] instanceof Sodapop_User) {
+	if (isset($_SESSION['user'])) {
 	    $this->user = $_SESSION['user'];
 	} else {
 	    $_SESSION['user'] = call_user_func(array($databaseClass, 'getUser'), $this->config['model.database.hostname'], $this->config['model.database.port'], $this->config['model.database.public_user'], $this->config['model.database.public_password'], $this->config['model.database.schema'], $environment, null);
@@ -150,10 +129,11 @@ class Sodapop_Application {
 	$controller = null;
 	$action = null;
 	$requestVariables = array();
+	$requestVariablesNumeric = array();
 
 	// figure out the root path
-	$indexPath = str_replace('index.php', '', $_SERVER['SCRIPT_NAME']);
-	$routePath = str_replace($indexPath, '', $_SERVER['REQUEST_URI']);
+	$indexPath = str_replace('/index.php', '', $_SERVER['SCRIPT_NAME']);
+	$routePath = str_replace($indexPath.'/', '', $_SERVER['REQUEST_URI']);
 
 	// see if it's in the routes
 	foreach ($this->routes as $key => $route) {
@@ -198,7 +178,7 @@ class Sodapop_Application {
 		    $request = new Sodapop_Request();
 		    $request->setRequestVariables($requestVariables);
 
-		    $this->loadControllerAction($controller, $action, $request, $this->view);
+		    $this->loadControllerAction($controller, $action, $request, $this->view, $indexPath);
 		}
 
 		
@@ -207,19 +187,92 @@ class Sodapop_Application {
 	}
 	
 	// resolve the controller and action, set up the request.
+	$routePathParts = explode('/', $routePath);
+	if (count($routePathParts) == 0 || trim($routePathParts[0]) == '') {
+	    $controller = 'index';
+	    $action = 'index';
+	} else if (count($routePathParts) == 1) {
+	    $controller = $routePathParts[0];
+	    $action = 'index';
+	} else if (count($routePathParts) == 2) {
+	    $controller = $routePathParts[0];
+	    $action = $routePathParts[1];
+	} else {
+	    $controller = $routePathParts[0];
+	    $action = $routePathParts[1];
+	    for ($i = 2; $i < count($routePathParts); $i++) {
+		$requestVariablesNumeric[$i - 2] = $routePathParts[$i];
+		if ($i % 2 == 0 && isset($routePathParts[$i + 1])) {
+		    $requestVariables[$routePathParts[$i]] = $routePathParts[$i + 1];
+		}
+	    }
+	}
+	foreach($_REQUEST as $name => $value) {
+	    $requestVariables[$name] = $value;
+	}
 
+
+	$request = new Sodapop_Request();
+	$request->setRequestVariables($requestVariables);
+	$request->setRequestVariablesNumeric($requestVariablesNumeric);
+
+	$this->loadControllerAction($controller, $action, $request, $this->view, $indexPath);
 
     }
 
-    public function loadControllerAction($controller, $action, $request, $view) {
-	require_once($this->config['controller.directory'].'/'.$controller.'Controller.php');
-	$controllerName = $controller.'Controller';
+    public function loadControllerAction($controller, $action, $request, $view, $baseUrl) {
+	$actionMethod = $action.'Action';
+
+	@include_once($this->config['controller.directory'].'/'.ucfirst($controller).'Controller.php');
+	$controllerName = ucfirst($controller).'Controller';
 	$controllerObj = new $controllerName (&$this, $request, $view);
+	$controllerObj->controller = $controller;
+	$controllerObj->action = $action;
+	$controllerObj->setViewPath($controller.'/'.$action);
+	$controllerObj->view->baseUrl = $baseUrl;
 	$controllerObj->preDispatch();
-	$controllerObj->$action();
+	$controllerObj->$actionMethod();
 	$controllerObj->preDispatch();
+	$output = $controllerObj->render();
 	$controllerObj->cleanup();
+	echo $output;
 	exit();
+    }
+
+    public static function parseIniFile($environment, $config, $applicationRoot) {
+	// load the config
+	$loadOrder = array();
+	switch ($environment){
+	    case 'development':
+		$loadOrder[] = 'development';
+	    case 'testing':
+		$loadOrder[] = 'testing';
+	    case 'production':
+		$loadOrder[] = 'production';
+		break;
+	}
+
+	$newConfig = array();
+	for ($i = count($loadOrder) - 1; $i >= 0; $i--) {
+	    foreach($config[$loadOrder[$i]] as $attribute => $value) {
+		$value = str_replace('APPLICATION_ROOT', $applicationRoot, $value);
+		$newConfig[$attribute] = $value;
+	    }
+	}
+	if (!isset($newConfig['view.themes.root_directory'])) {
+	    $newConfig['view.themes.root_directory'] = $applicationRoot.'/../library/Themes';
+	}
+	if (!isset($newConfig['view.themes.current'])) {
+	    $newConfig['view.themes.current'] = 'Monochrome';
+	}
+	if (!isset($newConfig['bootstrap.file_path'])) {
+	    $newConfig['bootstrap.file_path'] = $applicationRoot.'/Bootstrap.php';
+	}
+	if (!isset($newConfig['controller.directory'])) {
+	    $newConfig['controller.directory'] = $applicationRoot.'/application/controllers';
+	}
+
+	return $newConfig;
     }
 
     private function processRoutesFile($routesArray) {
@@ -238,6 +291,7 @@ class Sodapop_Application {
 		    $regex .= $part;
 		}
 	    }
+	    $regex .= '/';
 	    // add it to the routes array
 	    if (isset($route['url'])) {
 		$routes[$regex] = array('url' => $route['url']);
@@ -252,10 +306,53 @@ class Sodapop_Application {
     }
 }
 
+/**
+ * Most of Sodapop's magic goes through this function.
+ *
+ * @param string $className
+ */
 function __autoload($className) {
     $classNameParts = explode('_', $className);
     @include_once(implode('/', $classNameParts).'.php');
     if (!class_exists($className)) {
-	// now it gets interesting.
+	// test standard controllers
+	switch ($className) {
+	    case 'IndexController':
+		createClass('IndexController', 'Standard_Controller_Index');
+		break;
+	    case 'AuthenticationController':
+		createClass('AuthenticationController', 'Standard_Controller_Authentication');
+		break;
+	}
+    }
+}
+
+function __unserialize($className) {
+    __autoload($className);
+}
+
+function createClass($className, $extends, $fields = array()) {
+    $classDef = 'class '.$className.' extends '.$extends.' { ';
+    foreach ($fields as $name => $value) {
+	$classDef .' $'.$name.' = "'.$value.'"; ';
+    }
+    $classDef .= '}';
+    eval ($classDef);
+}
+
+function determine_mime_type($filePath, $mimeFile = 'mime.ini') {
+    if (function_exists('finfo_open')) {
+	$finfo = finfo_open(FILEINFO_MIME_TYPE); // return mime type ala mimetype extension
+	$retval = finfo_file($finfo, $path);
+	finfo_close($finfo);
+	return $retval;
+    } else {
+	$types = parse_ini_file($mimeFile);
+	$extension = substr($filePath, strrpos($filePath, '.') + 1);
+	if (isset($types[$extension])) {
+	    return $types[$extension];
+	} else {
+	    return 'application/octet-stream';
+	}
     }
 }

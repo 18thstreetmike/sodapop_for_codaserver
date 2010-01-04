@@ -16,7 +16,7 @@ abstract class Sodapop_View_Abstract {
 
     protected $viewFile = null;
 
-    public function  __construct($config, $application) {
+    public function __construct($config, $application) {
 	$this->config = $config;
 	$this->fields['application'] = $application;
     }
@@ -26,7 +26,13 @@ abstract class Sodapop_View_Abstract {
     }
 
     public function __set($name, $value) {
-	$this->fields[$name] = $value;
+	if ($name == 'viewFile') {
+	    $this->viewFile = $value;
+	} else if ($name == 'layoutFile') {
+	    $this->layoutFile = $value;
+	} else {
+	    $this->fields[$name] = $value;
+	}
     }
 
     /*

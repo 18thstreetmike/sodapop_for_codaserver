@@ -38,13 +38,17 @@ class Sodapop_View_Toasty extends Sodapop_View_Abstract {
 	}
 
 	// render the view portion of the template to a string
-	$viewContent = $this->toasty->render($this->viewFile, null, true, false, true, true);
+	$viewContent = $this->toasty->render($this->viewFile, null, true, false, false, true);
 
 	// if a layout is to be used, save the view content to the appropriate viewContent variable and render the view.
 	if ($this->layoutFile) {
+	    // strip XML declaration
+	    $viewContent = str_replace('<?xml version="1.0"?>', '', $viewContent);
 	    $this->toasty->viewContent = $viewContent;
-	    $viewContent = $this->toasty->render($this->layoutFile, null, true, false, true, true);
+	    $viewContent = $this->toasty->render($this->layoutFile, null, true, false, false, true);
 	}
+
+	$this->toasty->cleanup();
 
 	return $viewContent;
     }
