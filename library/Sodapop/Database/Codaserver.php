@@ -276,17 +276,37 @@ class Sodapop_Database_Codaserver extends Sodapop_Database_Abstract {
 	$className = Sodapop_Inflector::underscoresToCamelCaps($tableName, false);
 	$overriddenFunctions = <<<OVER
 	    public function loadData() {
-		\$result = \$_SESSION['user']->connection->runQuery("SELECT * FROM \$tableName WHERE ID = '".\$this->id."' ");
+		\$result = \$_SESSION['user']->connection->runQuery("SELECT * FROM $tableName WHERE ID = '".\$this->id."' ");
 		if (count(\$result) > 0) {
 		    for(\$i = 0; \$i < count(\$result['columns']); \$i++) {
 			\$this->fields[Sodapop_Inflector::underscoresToCamelCaps(\$result['columns'][\$i]['columnname'])] = \$result['data'][0][\$i];
+			\$this->oldFields[Sodapop_Inflector::underscoresToCamelCaps(\$result['columns'][\$i]['columnname'])] = \$result['data'][0][\$i];
 		    }
 		}
 		\$this->lazyLoaded = true;
 	    }
 
 	    public function getSubtableChildIds(\$subtableName, \$parentRowId) {
-		return \$_SESSION['user']->connection->runQuery("SELECT id FROM ".\$subtableName." WHERE parent_table_id = '".\$parentRowId."'");
+		return \$_SESSION['user']->connection->runUpdate("SELECT id FROM ".\$subtableName." WHERE parent_table_id = '".\$parentRowId."'");
+	    }
+
+	    protected function save(\$action = 'UPDATE') {
+		if (\$action == 'DELETE' && \$this->id) {
+		    \$_SESSION['user']->connection->runQuery("DELETE FROM $tableName WHERE ID = '".\$this->id."' ");
+		} else {
+		    \$setClause = '';
+		    foreach(\$this->fields as \$fieldName => \$newValue) {
+			if (\$setClause != '') {
+			    \$setClause .= ',';
+			}
+			\$setClause .= Sodapop_Inflector::camelCapsToUnderscores(\$fieldName)." = ':".\$fieldName."'";
+		    }
+		    if (\$action == 'INSERT') {
+			\$_SESSION['user']->connection->runParameterizedUpdate("INSERT INTO $tableName SET ".\$setClause." WHERE ID = '".\$this->id."' ");
+		    } else if (\$action == 'UPDATE') {
+			\$_SESSION['user']->connection->runParameterizedUpdate("UPDATE $tableName SET ".\$setClause." WHERE ID = '".\$this->id."' ");
+		    }
+		}
 	    }
 OVER;
     }
