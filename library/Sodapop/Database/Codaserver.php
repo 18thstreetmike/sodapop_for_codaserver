@@ -284,7 +284,7 @@ class Sodapop_Database_Codaserver extends Sodapop_Database_Abstract {
 		if ($columnString != 'protected $fieldDefinitions = array(') {
 		   $columnString .= ',';   	
 		}
-		$columnString .= "'".Sodapop_Inflector::underscoreToCamelCaps(strtolower($column[0]))."' => array(";
+		$columnString .= "'".Sodapop_Inflector::underscoresToCamelCaps(strtolower($column[0]), true, false)."' => array(";
 		for($i = 0; $i < count($column); $i++) {
 		       if ($i > 0) {
 		       	  $columnString .= ',';
@@ -294,13 +294,13 @@ class Sodapop_Database_Codaserver extends Sodapop_Database_Abstract {
 		$columnString .= ")";		
 	}
 	$columnString .= ');';
-	$childTables = codaserver_query($this->codaServerConnection, "SHOW TABLES WHERE p.table_name = '".strtoupper($tableName)."'");
+	$childTables = codaserver_query($this->codaserverConnection, "SHOW TABLES WHERE p.table_name = '".strtoupper($tableName)."'");
 	$childTableString = 'protected $childTableDefinitions = array(';
 	foreach ($childTables['data'] as $childTable) {
 		if ($childTableString != 'protected $childTableDefinitions = array(') {
 		   $childTableString .= ',';
 		}
-		$childTableString .= "'".Sodapop_Inflector::underscoresToCamelCaps($childTable[0])."' => array(";
+		$childTableString .= "'".Sodapop_Inflector::underscoresToCamelCaps($childTable[0], true, false)."' => array(";
 		for($i = 0; $i < count($childTable); $i++) {
 		       if ($i > 0) {
 		       	  $childTableString .= ',';
@@ -309,6 +309,7 @@ class Sodapop_Database_Codaserver extends Sodapop_Database_Abstract {
 		}
 		$childTableString .= ",'lazyLoaded' => false, 'updated' => false);";
 	}	
+	$childTableString .= .');';
 	$overriddenFunctions = <<<OVER
 	    public function loadData() {
 		\$result = \$_SESSION['user']->connection->runQuery("SELECT * FROM $tableName WHERE ID = '".\$this->id."' ");
@@ -344,7 +345,9 @@ class Sodapop_Database_Codaserver extends Sodapop_Database_Abstract {
 		}
 	    }
 OVER;
-	eval("class ".Sodapop_Inflector::underscoresToCamelCaps($tableName, false)." extends Sodapop_Database_Table_Abstract {\n".$columnString."\n".$childTableString."\n".$overridenFunctions."\n}");
+	$classDef = "class ".Sodapop_Inflector::underscoresToCamelCaps($tableName, false)." extends Sodapop_Database_Table_Abstract {\n".$columnString."\n".$childTableString."\n".$overriddenFunctions."\n}";
+	echo $classDef; die;
+	eval($classDef);
     }
 
     public function defineFormClass($formName) {

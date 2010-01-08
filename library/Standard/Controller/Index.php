@@ -17,6 +17,7 @@ class Standard_Controller_Index extends Sodapop_Controller {
         } catch(Sodapop_Database_Exception $e) {
             var_dump($e);
         }
+        //$customer = new Customer();
         $this->view->orders = $customers;
     }
 }

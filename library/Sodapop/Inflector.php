@@ -18,14 +18,22 @@ class Sodapop_Inflector {
 	return Inflect::singularize($string);
     }
 
-    public static function underscoresToCamelCaps( $string, $keepCase = true ){
+    public static function underscoresToCamelCaps( $string, $keepCase = true, $initcaps = true ){
 	$parts = explode('_', $string);
 	$retval = '';
 	for($i = 0; $i < count($parts); $i++) {
 	    if (!$keepCase && $i == count($parts) - 1) {
-		$retval .= ucfirst(Sodapop_Inflector::singularize($parts[$i]));
+			if ($i == 0 && $initcaps) {
+				$retval .= ucfirst(Sodapop_Inflector::singularize($parts[$i]));
+			} else {
+				$retval .= strtolower(Sodapop_Inflector::singularize($parts[$i]));
+			}
 	    } else {
-		$retval .= ucfirst($parts[$i]);
+			if ($i == 0 && $initcaps) {
+				$retval .= ucfirst($parts[$i]);
+			} else {
+				$retval .= strtolower($parts[$i]);
+			}
 	    }
 	}
 	return $retval;
