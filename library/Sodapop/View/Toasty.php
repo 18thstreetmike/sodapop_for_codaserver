@@ -38,7 +38,7 @@ class Sodapop_View_Toasty extends Sodapop_View_Abstract {
 	}
 
 	// render the view portion of the template to a string
-	$viewContent = $this->toasty->render($this->viewFile, null, true, false, false, true);
+	$viewContent = $this->toasty->render($this->viewFile, null, true, false, false, false);
 
 	// if a layout is to be used, save the view content to the appropriate viewContent variable and render the view.
 	if ($this->layoutFile) {
