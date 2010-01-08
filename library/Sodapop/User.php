@@ -73,13 +73,21 @@ class Sodapop_User {
 	return $this->formPermissions[strtoupper($form)];
     }
 
-    public function hasFormPermission($form, $statusAdjective, $permission) {
+    public function hasFormPermission($form, $statusId = true, $permission) {
 	if (is_array($this->formPermissions[strtoupper($form)])) {
-	    if (is_array($this->formPermissions[strtoupper($form)][strtoupper($statusAdjective)])) {
-		return in_array(strtoupper($permission), $this->formPermissions[strtoupper($form)][strtoupper($statusAdjective)]);
-	    } else {
-		return false;
-	    }
+	   if ($statusId) {
+	      if (is_array($this->formPermissions[strtoupper($form)][$statusId])) {
+		 return in_array(strtoupper($permission), $this->formPermissions[strtoupper($form)][$statusId]);
+	      } else {
+		 return false;
+	      }
+	   } else {
+	      foreach($this->formPermissions[strtoupper($form)] as $permission) {
+	         if($permission[strtoupper($permission)]) {
+		 	return true;
+		 }
+	      }
+	   }
 	} else {
 	    return false;
 	}

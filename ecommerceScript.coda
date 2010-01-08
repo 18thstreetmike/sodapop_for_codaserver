@@ -1,21 +1,15 @@
-# Coda script for ecommerce app
-
-CREATE USER mike IDENTIFIED BY 'password' (
-	FIRST_NAME = 'Mike', 
-	LAST_NAME = 'Arace', 
-	ORGANIZATION = '18th Street Software, LLC'
-);
-
 CREATE DATASOURCE ecommerce_dev DISPLAYED AS 'Ecommerce Development' (
 	HOSTNAME = '127.0.0.1', 
 	USERNAME = 'ecommerce', 
 	PASSWORD = 'password', 
 	SCHEMA = 'ecommerce_dev', 
 	DRIVER = 'org.codalang.codaserver.mysqldriver.MySQLDriver'
-) USING ADMIN 'root':'';
+) USING ADMIN 'root':'b7ubbadog';
 
 CREATE APPLICATION ecommerce DISPLAYED AS 'Ecommerce' 
 	ON DATASOURCE ecommerce_dev PREFIX c_;
+
+SET APPLICATION ecommerce.dev;
 	
 CREATE TABLE addresses DISPLAYED AS 'Addresses' IN APPLICATION ecommerce WITH SOFT DELETE (
      address STRING DISPLAYED AS 'Address' NOT NULL, 

@@ -11,6 +11,8 @@ class Sodapop_Database_Codaserver extends Sodapop_Database_Abstract {
 
     private $codaserverConnection = null;
 
+    public $codaserverTablePrefix = 'c_';
+
     public function connect($hostname, $port, $username,$password) {
 	try {
 	    $codaserverConnection = codaserver_connect($hostname, $port, $username, $password);
@@ -44,6 +46,8 @@ class Sodapop_Database_Codaserver extends Sodapop_Database_Abstract {
 	}
 	try {
 	    $success = codaserver_set_application($connection->codaserverConnection, $schema, $environment, $group);
+	    $prefixResult = codaserver_query($connection->codaserverConnection, "raw select: select system_value from coda_system_information where system_property = 'PREFIX'");
+	    $connection->codaserverTablePrefix = $prefixResult['data'][0][0];
 	} catch (Exception $e) {
 	    throw new Sodapop_Database_Exception($e->getMessage(), 2);
 	}
@@ -274,6 +278,37 @@ class Sodapop_Database_Codaserver extends Sodapop_Database_Abstract {
 
     public function defineTableClass($tableName) {
 	$className = Sodapop_Inflector::underscoresToCamelCaps($tableName, false);
+	$columns = codaserver_describe_table_columns($this->codaserverConnection, $tableName);
+	$columnString = 'protected $fieldDefinitions = array(';
+	foreach ($columns['data'] as $column) {
+		if ($columnString != 'protected $fieldDefinitions = array(') {
+		   $columnString .= ',';   	
+		}
+		$columnString .= "'".Sodapop_Inflector::underscoreToCamelCaps(strtolower($column[0]))."' => array(";
+		for($i = 0; $i < count($column); $i++) {
+		       if ($i > 0) {
+		       	  $columnString .= ',';
+		       }
+		       $columnString .= "'".strtolower($columns['columns'][$i]['columnname'])."' => '".addslashes($column[$i])."'"; 
+		}
+		$columnString .= ")";		
+	}
+	$columnString .= ');';
+	$childTables = codaserver_query($this->codaServerConnection, "SHOW TABLES WHERE p.table_name = '".strtoupper($tableName)."'");
+	$childTableString = 'protected $childTableDefinitions = array(';
+	foreach ($childTables['data'] as $childTable) {
+		if ($childTableString != 'protected $childTableDefinitions = array(') {
+		   $childTableString .= ',';
+		}
+		$childTableString .= "'".Sodapop_Inflector::underscoresToCamelCaps($childTable[0])."' => array(";
+		for($i = 0; $i < count($childTable); $i++) {
+		       if ($i > 0) {
+		       	  $childTableString .= ',';
+		       }
+		       $childTableString .= "'".strtolower($childTables['columns'][$i]['columnname'])."' => '".addslashes($childTable[$i])."'"; 
+		}
+		$childTableString .= ",'lazyLoaded' => false, 'updated' => false);";
+	}	
 	$overriddenFunctions = <<<OVER
 	    public function loadData() {
 		\$result = \$_SESSION['user']->connection->runQuery("SELECT * FROM $tableName WHERE ID = '".\$this->id."' ");
@@ -309,6 +344,7 @@ class Sodapop_Database_Codaserver extends Sodapop_Database_Abstract {
 		}
 	    }
 OVER;
+	eval("class ".Sodapop_Inflector::underscoresToCamelCaps($tableName, false)." extends Sodapop_Database_Table_Abstract {\n".$columnString."\n".$childTableString."\n".$overridenFunctions."\n}");
     }
 
     public function defineFormClass($formName) {
