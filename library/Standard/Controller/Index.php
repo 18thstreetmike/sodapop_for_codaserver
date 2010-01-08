@@ -11,13 +11,7 @@ class Standard_Controller_Index extends Sodapop_Controller {
     }
 
     public function indexAction() {
-        $orders = array();
-        try {
-            $customers = $this->user->connection->runQuery('SELECT * FROM customers');
-        } catch(Sodapop_Database_Exception $e) {
-            var_dump($e);
-        }
-        //$customer = new Customer();
-        $this->view->orders = $customers;
+        $customer = new Customer(1);
+        $this->view->customer = $customer;
     }
 }

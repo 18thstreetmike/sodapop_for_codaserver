@@ -23,16 +23,16 @@ class Sodapop_Inflector {
 	$retval = '';
 	for($i = 0; $i < count($parts); $i++) {
 	    if (!$keepCase && $i == count($parts) - 1) {
-			if ($i == 0 && $initcaps) {
-				$retval .= ucfirst(Sodapop_Inflector::singularize($parts[$i]));
-			} else {
+			if ($i == 0 && !$initcaps) {
 				$retval .= strtolower(Sodapop_Inflector::singularize($parts[$i]));
+			} else {
+				$retval .= ucfirst(Sodapop_Inflector::singularize($parts[$i]));
 			}
 	    } else {
-			if ($i == 0 && $initcaps) {
-				$retval .= ucfirst($parts[$i]);
-			} else {
+			if ($i == 0 && !$initcaps) {
 				$retval .= strtolower($parts[$i]);
+			} else {
+				$retval .= ucfirst($parts[$i]);
 			}
 	    }
 	}

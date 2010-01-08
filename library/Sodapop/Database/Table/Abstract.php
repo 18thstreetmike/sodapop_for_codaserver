@@ -28,7 +28,7 @@ abstract class Sodapop_Database_Table_Abstract {
     }
 
     public function __get($name) {
-	if (!$lazyLoaded && $id) {
+	if (!$this->lazyLoaded && $this->id) {
 	    $this->loadData();
 	}
 	if (array_key_exists($name, $this->fieldDefinitions) && $this->fieldDefinitions[$name]['type_name'] != 'REFERENCE' && $this->fieldDefinitions[$name]['array_flag'] == '0') {
@@ -67,7 +67,7 @@ abstract class Sodapop_Database_Table_Abstract {
     }
 
     public function __set($name, $value) {
-	if (!$lazyLoaded && $id) {
+	if (!$this->lazyLoaded && $this->id) {
 	    $this->loadData();
 	}
 	if (array_key_exists($name, $this->fieldDefinitions) && $this->fieldDefinitions[$name]['type_name'] != 'REFERENCE' && $this->fieldDefinitions[$name]['array_flag'] == '0') {
@@ -109,7 +109,7 @@ abstract class Sodapop_Database_Table_Abstract {
 
     public abstract function loadData();
 
-    protected function save($action = 'UPDATE');
+    protected abstract function save($action = 'UPDATE');
 
     public abstract function getSubtableChildIds($subtableName, $parentRowId);
 

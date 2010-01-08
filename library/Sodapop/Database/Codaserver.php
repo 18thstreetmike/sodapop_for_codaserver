@@ -309,7 +309,7 @@ class Sodapop_Database_Codaserver extends Sodapop_Database_Abstract {
 		}
 		$childTableString .= ",'lazyLoaded' => false, 'updated' => false);";
 	}	
-	$childTableString .= .');';
+	$childTableString .= ');';
 	$overriddenFunctions = <<<OVER
 	    public function loadData() {
 		\$result = \$_SESSION['user']->connection->runQuery("SELECT * FROM $tableName WHERE ID = '".\$this->id."' ");
@@ -346,7 +346,6 @@ class Sodapop_Database_Codaserver extends Sodapop_Database_Abstract {
 	    }
 OVER;
 	$classDef = "class ".Sodapop_Inflector::underscoresToCamelCaps($tableName, false)." extends Sodapop_Database_Table_Abstract {\n".$columnString."\n".$childTableString."\n".$overriddenFunctions."\n}";
-	echo $classDef; die;
 	eval($classDef);
     }
 

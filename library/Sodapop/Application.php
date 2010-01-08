@@ -222,7 +222,6 @@ class Sodapop_Application {
 
     public function loadControllerAction($controller, $action, $request, $view, $baseUrl) {
 	$actionMethod = $action.'Action';
-
 	@include_once($this->config['controller.directory'].'/'.ucfirst($controller).'Controller.php');
 	$controllerName = ucfirst($controller).'Controller';
 	$controllerObj = new $controllerName (&$this, $request, $view);

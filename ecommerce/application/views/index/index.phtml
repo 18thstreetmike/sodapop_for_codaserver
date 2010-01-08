@@ -1,5 +1,6 @@
 <div style="padding: 1em;">
     <h3>Welcome, <?= $this->application->user->first_name ?>!</h3>
     <p><?= $this->application->description ?></p>
-    <pre><?= var_dump($this->orders) ?></pre>
+    <pre><?= var_dump($this->customer) ?></pre>
+    <p><strong>[<?= $this->customer->firstName ?> <?= $this->customer->lastName ?>]</strong></p>
 </div>
