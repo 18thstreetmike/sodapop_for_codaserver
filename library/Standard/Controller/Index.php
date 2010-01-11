@@ -11,7 +11,7 @@ class Standard_Controller_Index extends Sodapop_Controller {
     }
 
     public function indexAction() {
-        $customer = new Customer(1);
-        $this->view->customer = $customer;
+        $order = new Order(1);
+		$this->view->order = $order;
     }
 }

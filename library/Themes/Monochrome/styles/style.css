@@ -35,6 +35,18 @@ div.screen-header {
     text-align: left;
 }
 
+div.screen-footer {
+    background-color: #FFF;
+    margin: 0 auto 0 auto;
+    width: 95%;
+    color: #666;
+    text-align: center;
+}
+
+div.screen-footer p {
+	padding: 5pt;
+}
+
 h1.logo {
     margin: 1em;
     float: left;

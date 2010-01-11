@@ -48,37 +48,37 @@ class Toasty {
      * @param string $cacheDirectory
      */
     public function __construct($config = array()) {
-	foreach ($config as $key => $value) {
-	    switch($key) {
-		case 'widget_class':
-		    $this->setWidgetClass($value);
-		    break;
-		case 'extension':
-		    $this->setExtension($value);
-		    break;
-		case 'cache_directory':
-		    $this->setCacheDirectory($value);
-		    break;
-		case 'root_directory':
-		    $this->setRootDirectory($value);
-		    break;
-		case 'working_directory':
-		    $this->setWorkingDirectory($value);
-		    break;
-		case 'aggregate_blocks':
-		    $this->setAggregateBlocks($value);
-		    break;
-		case 'create_files':
-		    $this->setCreateFiles($value);
-		    break;
-		case 'script_tag':
-		    $this->setScriptTag($value);
-		    break;
-		case 'style_tag':
-		    $this->setStyleTag($value);
-		    break;
-	    }
-	}
+        foreach ($config as $key => $value) {
+            switch($key) {
+                case 'widget_class':
+                    $this->setWidgetClass($value);
+                    break;
+                case 'extension':
+                    $this->setExtension($value);
+                    break;
+                case 'cache_directory':
+                    $this->setCacheDirectory($value);
+                    break;
+                case 'root_directory':
+                    $this->setRootDirectory($value);
+                    break;
+                case 'working_directory':
+                    $this->setWorkingDirectory($value);
+                    break;
+                case 'aggregate_blocks':
+                    $this->setAggregateBlocks($value);
+                    break;
+                case 'create_files':
+                    $this->setCreateFiles($value);
+                    break;
+                case 'script_tag':
+                    $this->setScriptTag($value);
+                    break;
+                case 'style_tag':
+                    $this->setStyleTag($value);
+                    break;
+            }
+        }
     }
 
     /**
@@ -87,23 +87,23 @@ class Toasty {
      * @param string $widgetClass
      */
     public function setWidgetClass($widgetClass) {
-	$this->widgetClass = $widgetClass;
+        $this->widgetClass = $widgetClass;
 
-	// get a list of all of the functions of the widget class
-	$classMethods = get_class_methods($this->widgetClass);
+        // get a list of all of the functions of the widget class
+        $classMethods = get_class_methods($this->widgetClass);
 
-	// iterate over the widget's functions to see what is provided
-	if (is_array($classMethods)) {
-	    foreach ($classMethods as $methodName) {
-		if (substr($methodName, -3) == 'Tag') {
-		    $this->tags[] = strtolower(substr($methodName, 0, -3));
-		} else if (substr($methodName, -6) == 'Object') {
-		    $this->objects[] = strtolower(substr($methodName, 0, -6));
-		} else if (substr($methodName, -9) == 'Container') {
-		    $this->containers[] = strtolower(substr($methodName, 0, -9));
-		}
-	    }
-	}
+        // iterate over the widget's functions to see what is provided
+        if (is_array($classMethods)) {
+            foreach ($classMethods as $methodName) {
+                if (substr($methodName, -3) == 'Tag') {
+                    $this->tags[] = strtolower(substr($methodName, 0, -3));
+                } else if (substr($methodName, -6) == 'Object') {
+                    $this->objects[] = strtolower(substr($methodName, 0, -6));
+                } else if (substr($methodName, -9) == 'Container') {
+                    $this->containers[] = strtolower(substr($methodName, 0, -9));
+                }
+            }
+        }
     }
 
     /**
@@ -112,7 +112,7 @@ class Toasty {
      * @return string
      */
     public function getWidgetClass() {
-	return $this->widgetClass;
+        return $this->widgetClass;
     }
 
     /**
@@ -121,7 +121,7 @@ class Toasty {
      * @param string $extension
      */
     public function setExtension($extension) {
-	$this->extension = $extension;
+        $this->extension = $extension;
     }
 
     /**
@@ -130,7 +130,7 @@ class Toasty {
      * @return string
      */
     public function getExtension() {
-	return $this->extension;
+        return $this->extension;
     }
 
     /**
@@ -139,7 +139,7 @@ class Toasty {
      * @param string $cacheDirectory
      */
     public function setCacheDirectory($cacheDirectory) {
-	$this->cacheDirectory = $cacheDirectory;
+        $this->cacheDirectory = $cacheDirectory;
     }
 
     /**
@@ -148,7 +148,7 @@ class Toasty {
      * @return string
      */
     public function getCacheDirectory() {
-	return $this->cacheDirectory;
+        return $this->cacheDirectory;
     }
 
     /**
@@ -157,7 +157,7 @@ class Toasty {
      * @param string $rootDirectory
      */
     public function setRootDirectory($rootDirectory) {
-	$this->rootDirectory = $rootDirectory;
+        $this->rootDirectory = $rootDirectory;
     }
 
     /**
@@ -166,7 +166,7 @@ class Toasty {
      * @return string
      */
     public function getRootDirectory() {
-	return $this->rootDirectory;
+        return $this->rootDirectory;
     }
 
     /**
@@ -175,7 +175,7 @@ class Toasty {
      * @param string $workingDirectory
      */
     public function setWorkingDirectory($workingDirectory) {
-	$this->workingDirectory = $workingDirectory;
+        $this->workingDirectory = $workingDirectory;
     }
 
     /**
@@ -184,7 +184,7 @@ class Toasty {
      * @return string
      */
     public function getWorkingDirectory() {
-	return $this->workingDirectory;
+        return $this->workingDirectory;
     }
 
     /**
@@ -193,7 +193,7 @@ class Toasty {
      * @param boolean $aggregateBlocks
      */
     public function setAggregateBlocks($aggregateBlocks) {
-	$this->aggregateBlocks = ($aggregateBlocks == true);
+        $this->aggregateBlocks = ($aggregateBlocks == true);
     }
 
     /**
@@ -202,7 +202,7 @@ class Toasty {
      * @return boolean
      */
     public function getAggregateBlocks() {
-	return $this->aggregateBlocks;
+        return $this->aggregateBlocks;
     }
 
     /**
@@ -211,7 +211,7 @@ class Toasty {
      * @param boolean $createFiles
      */
     public function setCreateFiles($createFiles) {
-	$this->createFiles = ($createFiles == true);
+        $this->createFiles = ($createFiles == true);
     }
 
     /**
@@ -220,7 +220,7 @@ class Toasty {
      * @return boolean
      */
     public function getCreateFiles() {
-	return $this->createFiles;
+        return $this->createFiles;
     }
 
     /**
@@ -229,7 +229,7 @@ class Toasty {
      * @param string $scriptTag
      */
     public function setScriptTag($scriptTag) {
-	$this->scriptTag = $scriptTag;
+        $this->scriptTag = $scriptTag;
     }
 
     /**
@@ -238,7 +238,7 @@ class Toasty {
      * @return string
      */
     public function getScriptTag() {
-	return $this->scriptTag;
+        return $this->scriptTag;
     }
 
     /**
@@ -247,7 +247,7 @@ class Toasty {
      * @param string $styleTag
      */
     public function setStyleTag($styleTag) {
-	$this->styleTag = $styleTag;
+        $this->styleTag = $styleTag;
     }
 
     /**
@@ -256,15 +256,15 @@ class Toasty {
      * @return string
      */
     public function getStyleTag() {
-	return $this->styleTag;
+        return $this->styleTag;
     }
 
     public function getScriptBlocks() {
-	return $this->scriptBlocks;
+        return $this->scriptBlocks;
     }
 
     public function getStyleBlocks() {
-	return $this->styleBlocks;
+        return $this->styleBlocks;
     }
 
     /**
@@ -274,7 +274,7 @@ class Toasty {
      * @param mixed $value
      */
     public function __set($name, $value) {
-	$this->variables[$name] = $value;
+        $this->variables[$name] = $value;
     }
 
     /**
@@ -284,11 +284,11 @@ class Toasty {
      * @return mixed
      */
     public function __get($name) {
-	if (isset($this->variables[$name])) {
-	    return $this->variables[$name];
-	} else {
-	    return null;
-	}
+        if (isset($this->variables[$name])) {
+            return $this->variables[$name];
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -306,164 +306,165 @@ class Toasty {
      * @return string or null
      */
     public function render($templateName = null, $cacheKey = null, $convertToHtml = true, $echoDirectly = false, $runCleanup = true, $prettifyHtml = false) {
-	if (is_null($templateName)) {
-	    throw new Exception('No template provided.');
-	} else {
-	    $file = file_get_contents($this->rootDirectory.$templateName.'.'.$this->extension);
-	    if (!$file) {
-		throw new Exception('Template not found or empty.');
-	    } else if(!is_null($this->cacheDirectory) && file_exists($this->cacheDirectory.$templateName.(is_null($cacheKey) ? '' : '_'.$cacheKey).'.php')) {
-		if ($echoDirectly) {
-		    $this->cleanup();
-		    echo file_get_contents($this->cacheDirectory.$templateName.(is_null($cacheKey) ? '' : '_'.$cacheKey).'.html');
-		    return;
-		} else {
-		    $this->cleanup();
-		    return file_get_contents($this->cacheDirectory.$templateName.(is_null($cacheKey) ? '' : '_'.$cacheKey).'.html');
-		}
-	    } else {
-		// eval the statement, grab the output buffer.
-		ob_start();
-		eval('?>'.$file);
-		$file = ob_get_contents();
-		ob_end_clean();
+        if (is_null($templateName)) {
+            throw new Exception('No template provided.');
+        } else {
+            $file = file_get_contents($this->rootDirectory.$templateName.'.'.$this->extension);
+            if (!$file) {
+                throw new Exception('Template not found or empty.');
+            } else if(!is_null($this->cacheDirectory) && file_exists($this->cacheDirectory.$templateName.(is_null($cacheKey) ? '' : '_'.$cacheKey).'.php')) {
+                if ($echoDirectly) {
+                    $this->cleanup();
+                    echo file_get_contents($this->cacheDirectory.$templateName.(is_null($cacheKey) ? '' : '_'.$cacheKey).'.html');
+                    return;
+                } else {
+                    $this->cleanup();
+                    return file_get_contents($this->cacheDirectory.$templateName.(is_null($cacheKey) ? '' : '_'.$cacheKey).'.html');
+                }
+            } else {
+                // eval the statement, grab the output buffer.
+                ob_start();
+                eval('?>'.$file);
+                $file = ob_get_contents();
+                ob_end_clean();
 
-		//  strip out all of the script tags, store the content elsewhere for now.
-		$file = preg_replace_callback(
-			'/(<script[ \t>].*?\/script>)/sm',
-			array(&$this, 'storeScriptBlock'),
-			$file
-		);
+                //  strip out all of the script tags, store the content elsewhere for now.
+                $file = preg_replace_callback(
+            '/(<script[ \t>].*?\/script>)/sm',
+                    array(&$this, 'storeScriptBlock'),
+                    $file
+                );
 
-		//  strip out all of the style tags, store the content elsewhere for now.
-		$file = preg_replace_callback(
-			'/(<style[ \t>].*?\/style>)/sm',
-			array(&$this, 'storeStyleBlock'),
-			$file
-		);
+                //  strip out all of the style tags, store the content elsewhere for now.
+                $file = preg_replace_callback(
+            '/(<style[ \t>].*?\/style>)/sm',
+                    array(&$this, 'storeStyleBlock'),
+                    $file
+                );
 
-		if ($convertToHtml) {
+                if ($convertToHtml) {
 
-		    // build the XML document with simple XML
-		    /* $object = simplexml_load_string("<?xml version='1.0'?><document>".$file."</document>");*/
-		    $object = simplexml_load_string($file);
+                    // build the XML document with simple XML
+            /* $object = simplexml_load_string("<?xml version='1.0'?><document>".$file."</document>");*/
 
-		    // check to see if the resulting file is actually XML
-		    if (!$object) {
-			throw new Exception('File not valid XML.');
-		    } else {
-			$output = $this->processNode($object);
-		    }
-		} else {
-		    $output = $file;
-		}
+                    $object = simplexml_load_string($file);
 
-		if (!$this->aggregateBlocks) {
-		    // replace the script blocks
-		    foreach ($this->scriptBlocks as $key => $value) {
-			$output = str_replace('<tempscript block="'.$this->hashNumber($key).'"/>', $value, $output);
-			$output = str_replace('<tempscript block="'.$this->hashNumber($key).'"></tempscript>', $value, $output);
-		    }
+                    // check to see if the resulting file is actually XML
+                    if (!$object) {
+                        throw new Exception('File not valid XML.');
+                    } else {
+                        $output = $this->processNode($object);
+                    }
+                } else {
+                    $output = $file;
+                }
 
-		    // replace the style blocks
-		    foreach ($this->styleBlocks as $key => $value) {
-			$output = str_replace('<tempstyle block="'.$this->hashNumber($key).'"/>', $value, $output);
-			$output = str_replace('<tempstyle block="'.$this->hashNumber($key).'"></tempstyle>', $value, $output);
-		    }
-		} else {
-		    // grab all the new scripts and styles from the page
-		    $output = preg_replace_callback(
-			    '/(<script[ \t>].*?\/script>)/sm',
-			    array(&$this, 'storeScriptBlock'),
-			    $output
-		    );
+                if (!$this->aggregateBlocks) {
+                    // replace the script blocks
+                    foreach ($this->scriptBlocks as $key => $value) {
+                        $output = str_replace('<tempscript block="'.$this->hashNumber($key).'"/>', $value, $output);
+                        $output = str_replace('<tempscript block="'.$this->hashNumber($key).'"></tempscript>', $value, $output);
+                    }
 
-		    $output = preg_replace_callback(
-			    '/(<style[ \t>].*?\/style>)/sm',
-			    array(&$this, 'storeStyleBlock'),
-			    $output
-		    );
+                    // replace the style blocks
+                    foreach ($this->styleBlocks as $key => $value) {
+                        $output = str_replace('<tempstyle block="'.$this->hashNumber($key).'"/>', $value, $output);
+                        $output = str_replace('<tempstyle block="'.$this->hashNumber($key).'"></tempstyle>', $value, $output);
+                    }
+                } else {
+                    // grab all the new scripts and styles from the page
+                    $output = preg_replace_callback(
+                '/(<script[ \t>].*?\/script>)/sm',
+                        array(&$this, 'storeScriptBlock'),
+                        $output
+                    );
+
+                    $output = preg_replace_callback(
+                '/(<style[ \t>].*?\/style>)/sm',
+                        array(&$this, 'storeStyleBlock'),
+                        $output
+                    );
 
 
-		    // iterate over each of the scripts and styles, building strings
-		    $styleString = '';
-		    $scriptString = '
-	function toastyInit() {
-		';
+                    // iterate over each of the scripts and styles, building strings
+                    $styleString = '';
+                    $scriptString = '
+    function toastyInit() {
+        ';
 
-		    foreach($this->scriptBlocks as $key => $code) {
-			// determine if the script block is a src=" block.  do the regular thing if it is. Let's regex this soonish.
-			if (strstr($code, 'src="') == false) {
-			    $scriptString .= "// start block ".$key."\n\n". strip_tags($code) . "\n\n// end block ".$key." \n\n";
-			    $output = str_replace('<tempscript block="'.$this->hashNumber($key).'"/>', '', $output);
-			    $output = str_replace('<tempscript block="'.$this->hashNumber($key).'"></tempscript>', '', $output);
-			} else {
-			    $output = str_replace('<tempscript block="'.$this->hashNumber($key).'"/>', $code, $output);
-			    $output = str_replace('<tempscript block="'.$this->hashNumber($key).'"></tempscript>', $code, $output);
-			}
-		    }
+                    foreach($this->scriptBlocks as $key => $code) {
+                        // determine if the script block is a src=" block.  do the regular thing if it is. Let's regex this soonish.
+                        if (strstr($code, 'src="') == false) {
+                            $scriptString .= "// start block ".$key."\n\n". strip_tags($code) . "\n\n// end block ".$key." \n\n";
+                            $output = str_replace('<tempscript block="'.$this->hashNumber($key).'"/>', '', $output);
+                            $output = str_replace('<tempscript block="'.$this->hashNumber($key).'"></tempscript>', '', $output);
+                        } else {
+                            $output = str_replace('<tempscript block="'.$this->hashNumber($key).'"/>', $code, $output);
+                            $output = str_replace('<tempscript block="'.$this->hashNumber($key).'"></tempscript>', $code, $output);
+                        }
+                    }
 
-		    foreach($this->styleBlocks as $key => $style) {
-			$styleString .= "/* start block ".$key." */\n\n". strip_tags($style) . "\n\n/* end block ".$key." */\n\n";
-			$output = str_replace('<tempstyle block="'.$this->hashNumber($key).'"/>', '', $output);
-			$output = str_replace('<tempstyle block="'.$this->hashNumber($key).'"></tempstyle>', '', $output);
-		    }
+                    foreach($this->styleBlocks as $key => $style) {
+                        $styleString .= "/* start block ".$key." */\n\n". strip_tags($style) . "\n\n/* end block ".$key." */\n\n";
+                        $output = str_replace('<tempstyle block="'.$this->hashNumber($key).'"/>', '', $output);
+                        $output = str_replace('<tempstyle block="'.$this->hashNumber($key).'"></tempstyle>', '', $output);
+                    }
 
-		    // finish up the onload
-		    $scriptString .= '
-		}
-		window.onload = toastyInit;
+                    // finish up the onload
+                    $scriptString .= '
+        }
+        window.onload = toastyInit;
 ';
 
 
-		    if ($this->createFiles) {
-			// save the scripts and styles to external files, write these to the script and style tag locations, if specified
-			if (!empty($this->scriptTag)) {
-			    if (is_null($this->cacheDirectory) || !file_exists($_SERVER['DOCUMENT_ROOT'].$this->workingDirectory.$templateName.(is_null($cacheKey) ? '' : '_'.$cacheKey).'.js')) {
-				file_put_contents($_SERVER['DOCUMENT_ROOT'].$this->workingDirectory.$templateName.(is_null($cacheKey) ? '' : '_'.$cacheKey).'.js', $scriptString);
-			    }
-			    $output = str_replace('<'.$this->scriptTag.'/>', '<script language="javascript" type="text/javascript" src="'.$this->workingDirectory.$templateName.(is_null($cacheKey) ? '' : '_'.$cacheKey).'.js'.'"></script>', $output);
-			    $output = str_replace('<'.$this->scriptTag.'></'.$this->scriptTag.'>', '<script language="javascript" type="text/javascript" src="'.$this->workingDirectory.$templateName.(is_null($cacheKey) ? '' : '_'.$cacheKey).'.js'.'"></script>', $output);
-			}
-			if (!empty($this->styleTag)) {
-			    if (is_null($this->cacheDirectory) || !file_exists($_SERVER['DOCUMENT_ROOT'].$this->workingDirectory.$templateName.(is_null($cacheKey) ? '' : '_'.$cacheKey).'.css')) {
-				file_put_contents($_SERVER['DOCUMENT_ROOT'].$this->workingDirectory.$templateName.(is_null($cacheKey) ? '' : '_'.$cacheKey).'.css', $styleString);
-			    }
-			    $output = str_replace('<'.$this->styleTag.'/>', '<link href="'.$this->workingDirectory.$templateName.(is_null($cacheKey) ? '' : '_'.$cacheKey).'.css'.'" rel="stylesheet" type="text/css" media="screen"/>', $output);
-			    $output = str_replace('<'.$this->styleTag.'></'.$this->styleTag.'>', '<link href="'.$this->workingDirectory.$templateName.(is_null($cacheKey) ? '' : '_'.$cacheKey).'.css'.'" rel="stylesheet" type="text/css" media="screen"/>', $output);
-			}
-		    } else {
-			// create script and style tags wrapping the new aggregated tags
-			if (!empty($this->scriptTag)) {
-			    $output = str_replace('<'.$this->scriptTag.'/>', '<script language="javascript">'.$scriptString.'</script>', $output);
-			    $output = str_replace('<'.$this->scriptTag.'></'.$this->scriptTag.'>', '<script language="javascript">'.$scriptString.'</script>', $output);
-			}
-			if (!empty($this->styleTag)) {
-			    $output = str_replace('<'.$this->styleTag.'/>', '<style>'.$styleString.'</style>', $output);
-			    $output = str_replace('<'.$this->styleTag.'></'.$this->styleTag.'>', '<style>'.$styleString.'</style>', $output);
-			}
-		    }
-		}
+                    if ($this->createFiles) {
+                        // save the scripts and styles to external files, write these to the script and style tag locations, if specified
+                        if (!empty($this->scriptTag)) {
+                            if (is_null($this->cacheDirectory) || !file_exists($_SERVER['DOCUMENT_ROOT'].$this->workingDirectory.$templateName.(is_null($cacheKey) ? '' : '_'.$cacheKey).'.js')) {
+                                file_put_contents($_SERVER['DOCUMENT_ROOT'].$this->workingDirectory.$templateName.(is_null($cacheKey) ? '' : '_'.$cacheKey).'.js', $scriptString);
+                            }
+                            $output = str_replace('<'.$this->scriptTag.'/>', '<script language="javascript" type="text/javascript" src="'.$this->workingDirectory.$templateName.(is_null($cacheKey) ? '' : '_'.$cacheKey).'.js'.'"></script>', $output);
+                            $output = str_replace('<'.$this->scriptTag.'></'.$this->scriptTag.'>', '<script language="javascript" type="text/javascript" src="'.$this->workingDirectory.$templateName.(is_null($cacheKey) ? '' : '_'.$cacheKey).'.js'.'"></script>', $output);
+                        }
+                        if (!empty($this->styleTag)) {
+                            if (is_null($this->cacheDirectory) || !file_exists($_SERVER['DOCUMENT_ROOT'].$this->workingDirectory.$templateName.(is_null($cacheKey) ? '' : '_'.$cacheKey).'.css')) {
+                                file_put_contents($_SERVER['DOCUMENT_ROOT'].$this->workingDirectory.$templateName.(is_null($cacheKey) ? '' : '_'.$cacheKey).'.css', $styleString);
+                            }
+                            $output = str_replace('<'.$this->styleTag.'/>', '<link href="'.$this->workingDirectory.$templateName.(is_null($cacheKey) ? '' : '_'.$cacheKey).'.css'.'" rel="stylesheet" type="text/css" media="screen"/>', $output);
+                            $output = str_replace('<'.$this->styleTag.'></'.$this->styleTag.'>', '<link href="'.$this->workingDirectory.$templateName.(is_null($cacheKey) ? '' : '_'.$cacheKey).'.css'.'" rel="stylesheet" type="text/css" media="screen"/>', $output);
+                        }
+                    } else {
+                        // create script and style tags wrapping the new aggregated tags
+                        if (!empty($this->scriptTag)) {
+                            $output = str_replace('<'.$this->scriptTag.'/>', '<script language="javascript">'.$scriptString.'</script>', $output);
+                            $output = str_replace('<'.$this->scriptTag.'></'.$this->scriptTag.'>', '<script language="javascript">'.$scriptString.'</script>', $output);
+                        }
+                        if (!empty($this->styleTag)) {
+                            $output = str_replace('<'.$this->styleTag.'/>', '<style>'.$styleString.'</style>', $output);
+                            $output = str_replace('<'.$this->styleTag.'></'.$this->styleTag.'>', '<style>'.$styleString.'</style>', $output);
+                        }
+                    }
+                }
 
-		// save to cache if needed
-		if (!is_null($this->cacheDirectory)) {
-		    file_put_contents($this->cacheDirectory.$templateName.(is_null($cacheKey) ? '' : '_'.$cacheKey).'.html', $output);
-		}
+                // save to cache if needed
+                if (!is_null($this->cacheDirectory)) {
+                    file_put_contents($this->cacheDirectory.$templateName.(is_null($cacheKey) ? '' : '_'.$cacheKey).'.html', $output);
+                }
 
-		if ($echoDirectly) {
-		    if ($runCleanup) {
-			$this->cleanup();
-		    }
-		    echo ($prettifyHtml ? $this->cleanHtmlCode($output) : $output);
-		    return;
-		} else {
-		    if ($runCleanup) {
-			$this->cleanup();
-		    }
-		    return ($prettifyHtml ? $this->cleanHtmlCode($output) : $output);
-		}
-	    }
-	}
+                if ($echoDirectly) {
+                    if ($runCleanup) {
+                        $this->cleanup();
+                    }
+                    echo ($prettifyHtml ? $this->cleanHtmlCode($output) : $output);
+                    return;
+                } else {
+                    if ($runCleanup) {
+                        $this->cleanup();
+                    }
+                    return ($prettifyHtml ? $this->cleanHtmlCode($output) : $output);
+                }
+            }
+        }
 
     }
 
@@ -475,8 +476,8 @@ class Toasty {
      * @return string
      */
     private function storeScriptBlock($matches) {
-	$this->scriptBlocks[] = $matches[0];
-	return '<tempscript block="'.$this->hashNumber(count($this->scriptBlocks) - 1).'"/>';
+        $this->scriptBlocks[] = $matches[0];
+        return '<tempscript block="'.$this->hashNumber(count($this->scriptBlocks) - 1).'"/>';
     }
 
     /**
@@ -487,8 +488,8 @@ class Toasty {
      * @return string
      */
     private function storeStyleBlock($matches) {
-	$this->styleBlocks[] = $matches[0];
-	return '<tempstyle block="'.$this->hashNumber(count($this->styleBlocks) - 1).'"/>';
+        $this->styleBlocks[] = $matches[0];
+        return '<tempstyle block="'.$this->hashNumber(count($this->styleBlocks) - 1).'"/>';
     }
 
     /**
@@ -498,86 +499,86 @@ class Toasty {
      * @return string
      */
     private function processNode($object) {
-	if (in_array($object->getName(), $this->tags)) {
-	    // check to see if tag
-	    $className = $this->getWidgetClass();
-	    $attributes = array();
-	    foreach ($object->attributes() as $key => $attribute) {
-		$attributes[$key] = strval($attribute);
-	    }
-	    return call_user_func(array($this->getWidgetClass(), $object->getName().'Tag'), $attributes);
-	} else if (in_array($object->getName(), $this->objects)) {
-	    // check to see if object
-	    $attributes = array();
-	    foreach ($object->attributes() as $key => $attribute) {
-		$attributes[$key] = strval($attribute);
-	    }
-	    return call_user_func(array($this->getWidgetClass(), $object->getName().'Object'), $attributes, $object->asXML());
-	} else if (in_array($object->getName(), $this->containers)) {
-	    $innerHtml = '';
-	    $children = $object->xpath('child::*');
-	    if (count($children) == 0) {
-		$innerHtml = strval($object);
-	    } else {
-		$domDoc = dom_import_simplexml($object);
-		$domChildren = $domDoc->childNodes;
-		for ($i = 0; $i < $domChildren->length; $i++) {
-		    $node = $domChildren->item($i);
-		    if ($node->nodeType == XML_TEXT_NODE) {
-			$innerHtml .= htmlentities(' '.$node->textContent.' ');
-		    } else {
-			$child = simplexml_import_dom($node);
-			$innerHtml .= $this->processNode($child);
-		    }
-		}
-		/*
-				foreach ($children as $child) {
-					$innerHtml .= $this->processNode($child);
-				}
-		*/
-	    }
-	    $attributes = array();
-	    foreach ($object->attributes() as $key => $attribute) {
-		$attributes[$key] = strval($attribute);
-	    }
-	    return call_user_func(array($this->getWidgetClass(), $object->getName().'Container'), $attributes, $innerHtml);
-	} else {
+        if (in_array($object->getName(), $this->tags)) {
+            // check to see if tag
+            $className = $this->getWidgetClass();
+            $attributes = array();
+            foreach ($object->attributes() as $key => $attribute) {
+                $attributes[$key] = strval($attribute);
+            }
+            return call_user_func(array($this->getWidgetClass(), $object->getName().'Tag'), $attributes);
+        } else if (in_array($object->getName(), $this->objects)) {
+            // check to see if object
+            $attributes = array();
+            foreach ($object->attributes() as $key => $attribute) {
+                $attributes[$key] = strval($attribute);
+            }
+            return call_user_func(array($this->getWidgetClass(), $object->getName().'Object'), $attributes, $object->asXML());
+        } else if (in_array($object->getName(), $this->containers)) {
+            $innerHtml = '';
+            $children = $object->xpath('child::*');
+            if (count($children) == 0) {
+                $innerHtml = strval($object);
+            } else {
+                $domDoc = dom_import_simplexml($object);
+                $domChildren = $domDoc->childNodes;
+                for ($i = 0; $i < $domChildren->length; $i++) {
+                    $node = $domChildren->item($i);
+                    if ($node->nodeType == XML_TEXT_NODE) {
+                        $innerHtml .= htmlentities(' '.$node->textContent.' ');
+                    } else {
+                        $child = simplexml_import_dom($node);
+                        $innerHtml .= $this->processNode($child);
+                    }
+                }
+        /*
+                foreach ($children as $child) {
+                    $innerHtml .= $this->processNode($child);
+                }
+        */
+            }
+            $attributes = array();
+            foreach ($object->attributes() as $key => $attribute) {
+                $attributes[$key] = strval($attribute);
+            }
+            return call_user_func(array($this->getWidgetClass(), $object->getName().'Container'), $attributes, $innerHtml);
+        } else {
 
-	    $children = $object->xpath('child::*');
-	    if (count($children) == 0) {
-		$output = $object->asXML();
-		return ($output == '<attributes/>' || $output == '<attributes></attributes>' ? '' : $output);
-	    } else {
-		$domElement = dom_import_simplexml($object);
+            $children = $object->xpath('child::*');
+            if (count($children) == 0) {
+                $output = $object->asXML();
+                return ($output == '<attributes/>' || $output == '<attributes></attributes>' ? '' : $output);
+            } else {
+                $domElement = dom_import_simplexml($object);
 
-		$attributes = '';
-		foreach ($domElement->attributes as $key => $value) {
-		    $attributes .= ' '.$value->name.'="'.$value->value.'"';
-		}
+                $attributes = '';
+                foreach ($domElement->attributes as $key => $value) {
+                    $attributes .= ' '.$value->name.'="'.$value->value.'"';
+                }
 
-		$html = '<'.$object->getName().$attributes.'>';
-		$domDoc = dom_import_simplexml($object);
-		$domChildren = $domDoc->childNodes;
-		for ($i = 0; $i < $domChildren->length; $i++) {
-		    $node = $domChildren->item($i);
-		    if ($node->nodeType == XML_TEXT_NODE) {
-			$html .= htmlentities(' '.$node->textContent.' ');
-		    } else if ($node->nodeType != XML_ATTRIBUTE_NODE) {
-			$child = simplexml_import_dom($node);
-			$html .= $this->processNode($child);
-		    }
-		}
-		$html .= '</'.$object->getName().'>';
-		return $html;
-	    }
-	}
+                $html = '<'.$object->getName().$attributes.'>';
+                $domDoc = dom_import_simplexml($object);
+                $domChildren = $domDoc->childNodes;
+                for ($i = 0; $i < $domChildren->length; $i++) {
+                    $node = $domChildren->item($i);
+                    if ($node->nodeType == XML_TEXT_NODE) {
+                        $html .= htmlentities(' '.$node->textContent.' ');
+                    } else if ($node->nodeType != XML_ATTRIBUTE_NODE) {
+                        $child = simplexml_import_dom($node);
+                        $html .= $this->processNode($child);
+                    }
+                }
+                $html .= '</'.$object->getName().'>';
+                return $html;
+            }
+        }
     }
 
     /**
      * Used to generate repeatable unique keys for the various placeholders.
      */
     private function hashNumber ($num) {
-	return md5($num.'cavantina');
+        return md5($num.'cavantina');
     }
 
     /**
@@ -585,10 +586,10 @@ class Toasty {
      *
      */
     public function cleanup() {
-	$this->scriptBlocks = array();
-	$this->styleBlocks = array();
+        $this->scriptBlocks = array();
+        $this->styleBlocks = array();
 
-	$this->variables = array();
+        $this->variables = array();
     }
 
     /**
@@ -596,7 +597,7 @@ class Toasty {
      *
      */
     public function clearVariables() {
-	$this->variables = array();
+        $this->variables = array();
     }
 
     /**
@@ -608,15 +609,15 @@ class Toasty {
      * @return string
      */
     private function fixNewlinesForCleanHtml($fixthistext) {
-	$fixthistext_array = explode("\n", $fixthistext);
-	foreach ($fixthistext_array as $unfixedtextkey => $unfixedtextvalue) {
-	    //Makes sure empty lines are ignores
-	    if (!preg_match("/^(\s)*$/", $unfixedtextvalue)) {
-		$fixedtextvalue = preg_replace("/>(\s|\t)*</U", ">\n<", $unfixedtextvalue);
-		$fixedtext_array[$unfixedtextkey] = $fixedtextvalue;
-	    }
-	}
-	return implode("\n", $fixedtext_array);
+        $fixthistext_array = explode("\n", $fixthistext);
+        foreach ($fixthistext_array as $unfixedtextkey => $unfixedtextvalue) {
+            //Makes sure empty lines are ignores
+            if (!preg_match("/^(\s)*$/", $unfixedtextvalue)) {
+                $fixedtextvalue = preg_replace("/>(\s|\t)*</U", ">\n<", $unfixedtextvalue);
+                $fixedtext_array[$unfixedtextkey] = $fixedtextvalue;
+            }
+        }
+        return implode("\n", $fixedtext_array);
     }
 
     /**
@@ -628,86 +629,86 @@ class Toasty {
      * @return string
      */
     private function cleanHtmlCode($uncleanhtml) {
-	try {
-	    $tidyConfig = array(
-		    'indent'         => true,
-		    'output-xhtml'   => true,
-		    'wrap-attributes' => false,
-		    'wrap' => 1024,
-		    'indent-cdata' => true,
-		    'indent-spaces' => 4
-	    );
+        try {
+            $tidyConfig = array(
+            'indent'         => true,
+            'output-xhtml'   => true,
+            'wrap-attributes' => false,
+            'wrap' => 1024,
+            'indent-cdata' => true,
+            'indent-spaces' => 4
+            );
 
-	    // Tidy
-	    if (!class_exists('tidy')) {
-		throw new Exception('Tidy not found');
-	    }
-	    $tidy = new tidy;
-	    $tidy->parseString($uncleanhtml, $tidyConfig, 'utf8');
-	    $tidy->cleanRepair();
+            // Tidy
+            if (!class_exists('tidy')) {
+                throw new Exception('Tidy not found');
+            }
+            $tidy = new tidy;
+            $tidy->parseString($uncleanhtml, $tidyConfig, 'utf8');
+            $tidy->cleanRepair();
 
-	    return $tidy;
-	} catch (Exception $e) {
+            return $tidy;
+        } catch (Exception $e) {
 
-	    //Set wanted indentation
-	    $indent = "\t";
-	    //Uses previous function to seperate tags
-	    $fixed_uncleanhtml = $this->fixNewlinesForCleanHtml($uncleanhtml);
-	    $uncleanhtml_array = explode("\n", $fixed_uncleanhtml);
-	    //Sets no indentation
-	    $indentlevel = 0;
-	    foreach ($uncleanhtml_array as $uncleanhtml_key => $currentuncleanhtml) {
-		//Removes all indentation
-		$currentuncleanhtml = preg_replace("/\t+/", "", $currentuncleanhtml);
-		$currentuncleanhtml = preg_replace("/^\s+/", "", $currentuncleanhtml);
+            //Set wanted indentation
+            $indent = "\t";
+            //Uses previous function to seperate tags
+            $fixed_uncleanhtml = $this->fixNewlinesForCleanHtml($uncleanhtml);
+            $uncleanhtml_array = explode("\n", $fixed_uncleanhtml);
+            //Sets no indentation
+            $indentlevel = 0;
+            foreach ($uncleanhtml_array as $uncleanhtml_key => $currentuncleanhtml) {
+                //Removes all indentation
+                $currentuncleanhtml = preg_replace("/\t+/", "", $currentuncleanhtml);
+                $currentuncleanhtml = preg_replace("/^\s+/", "", $currentuncleanhtml);
 
-		$replaceindent = "";
+                $replaceindent = "";
 
-		//Sets the indentation from current indentlevel
-		for ($o = 0; $o < $indentlevel; $o++) {
-		    $replaceindent .= $indent;
-		}
+                //Sets the indentation from current indentlevel
+                for ($o = 0; $o < $indentlevel; $o++) {
+                    $replaceindent .= $indent;
+                }
 
-		//If self-closing tag, simply apply indent
-		if (preg_match("/<(.+)\/>/", $currentuncleanhtml)) {
-		    $cleanhtml_array[$uncleanhtml_key] = $replaceindent.$currentuncleanhtml;
-		}
-		//If doctype declaration, simply apply indent
-		else if (preg_match("/<!(.*)>/", $currentuncleanhtml)) {
-		    $cleanhtml_array[$uncleanhtml_key] = $replaceindent.$currentuncleanhtml;
-		}
-		//If opening AND closing tag on same line, simply apply indent
-		else if (preg_match("/<[^\/](.*)>/", $currentuncleanhtml) && preg_match("/<\/(.*)>/", $currentuncleanhtml)) {
-		    $cleanhtml_array[$uncleanhtml_key] = $replaceindent.$currentuncleanhtml;
-		}
-		//If closing HTML tag or closing JavaScript clams, decrease indentation and then apply the new level
-		else if (preg_match("/<\/(.*)>/", $currentuncleanhtml) || preg_match("/^(\s|\t)*\}{1}(\s|\t)*$/", $currentuncleanhtml)) {
-		    $indentlevel--;
-		    $replaceindent = "";
-		    for ($o = 0; $o < $indentlevel; $o++) {
-			$replaceindent .= $indent;
-		    }
+                //If self-closing tag, simply apply indent
+                if (preg_match("/<(.+)\/>/", $currentuncleanhtml)) {
+                    $cleanhtml_array[$uncleanhtml_key] = $replaceindent.$currentuncleanhtml;
+                }
+                //If doctype declaration, simply apply indent
+                else if (preg_match("/<!(.*)>/", $currentuncleanhtml)) {
+                    $cleanhtml_array[$uncleanhtml_key] = $replaceindent.$currentuncleanhtml;
+                }
+                //If opening AND closing tag on same line, simply apply indent
+                else if (preg_match("/<[^\/](.*)>/", $currentuncleanhtml) && preg_match("/<\/(.*)>/", $currentuncleanhtml)) {
+                    $cleanhtml_array[$uncleanhtml_key] = $replaceindent.$currentuncleanhtml;
+                }
+                //If closing HTML tag or closing JavaScript clams, decrease indentation and then apply the new level
+                else if (preg_match("/<\/(.*)>/", $currentuncleanhtml) || preg_match("/^(\s|\t)*\}{1}(\s|\t)*$/", $currentuncleanhtml)) {
+                    $indentlevel--;
+                    $replaceindent = "";
+                    for ($o = 0; $o < $indentlevel; $o++) {
+                        $replaceindent .= $indent;
+                    }
 
-		    $cleanhtml_array[$uncleanhtml_key] = $replaceindent.$currentuncleanhtml;
-		}
-		//If opening HTML tag AND not a stand-alone tag, or opening JavaScript clams, increase indentation and then apply new level
-		else if ((preg_match("/<[^\/](.*)>/", $currentuncleanhtml) && !preg_match("/<(link|meta|base|br|img|hr)(.*)>/", $currentuncleanhtml)) || preg_match("/^(\s|\t)*\{{1}(\s|\t)*$/", $currentuncleanhtml)) {
-		    $cleanhtml_array[$uncleanhtml_key] = $replaceindent.$currentuncleanhtml;
+                    $cleanhtml_array[$uncleanhtml_key] = $replaceindent.$currentuncleanhtml;
+                }
+                //If opening HTML tag AND not a stand-alone tag, or opening JavaScript clams, increase indentation and then apply new level
+                else if ((preg_match("/<[^\/](.*)>/", $currentuncleanhtml) && !preg_match("/<(link|meta|base|br|img|hr)(.*)>/", $currentuncleanhtml)) || preg_match("/^(\s|\t)*\{{1}(\s|\t)*$/", $currentuncleanhtml)) {
+                    $cleanhtml_array[$uncleanhtml_key] = $replaceindent.$currentuncleanhtml;
 
-		    $indentlevel++;
-		    $replaceindent = "";
-		    for ($o = 0; $o < $indentlevel; $o++) {
-			$replaceindent .= $indent;
-		    }
-		}
-		else
-		//Else, only apply indentation
-		{
-		    $cleanhtml_array[$uncleanhtml_key] = $replaceindent.$currentuncleanhtml;
-		}
-	    }
-	    //Return single string seperated by newline
-	    return implode("\n", $cleanhtml_array);
-	}
+                    $indentlevel++;
+                    $replaceindent = "";
+                    for ($o = 0; $o < $indentlevel; $o++) {
+                        $replaceindent .= $indent;
+                    }
+                }
+                else
+                //Else, only apply indentation
+                {
+                    $cleanhtml_array[$uncleanhtml_key] = $replaceindent.$currentuncleanhtml;
+                }
+            }
+            //Return single string seperated by newline
+            return implode("\n", $cleanhtml_array);
+        }
     }
 }

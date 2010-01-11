@@ -314,25 +314,28 @@ function __autoload($className) {
     $classNameParts = explode('_', $className);
     @include_once(implode('/', $classNameParts).'.php');
     if (!class_exists($className)) {
-	// test standard controllers
-	switch ($className) {
-	    case 'IndexController':
-		createClass('IndexController', 'Standard_Controller_Index');
-		break;
-	    case 'AuthenticationController':
-		createClass('AuthenticationController', 'Standard_Controller_Authentication');
-		break;
-	}
-	if (!class_exists($className)) {
-	   // start looking for models in the user's table list, then their form list
-	   if ($_SESSION['user']) {
-	      if ($_SESSION['user']->hasTablePermission(Sodapop_Inflector::camelCapsToUnderscores($className, false), 'SELECT')) {
-	      	 $_SESSION['user']->connection->defineTableClass(Sodapop_Inflector::camelCapsToUnderscores($className, false));
-	      } else if ($_SESSION['user']->hasFormPermission(Sodapop_Inflector::camelCapsToUnderscores($className, false), null, 'VIEW')) {
-	      	 $_SESSION['user']->connection->defineFormClass(Sodapop_Inflector::camelCapsToUnderscores($className, false));
-	      }
-	   }
-	}
+		// test standard controllers
+		switch ($className) {
+			case 'IndexController':
+				createClass('IndexController', 'Standard_Controller_Index');
+				break;
+			case 'AuthenticationController':
+				createClass('AuthenticationController', 'Standard_Controller_Authentication');
+				break;
+		}
+		if (!class_exists($className)) {
+		   // start looking for models in the user's table list, then their form list
+		   if ($_SESSION['user']) {
+			  if ($_SESSION['user']->hasTablePermission(Sodapop_Inflector::camelCapsToUnderscores($className, false), 'SELECT')) {
+				 $_SESSION['user']->connection->defineTableClass(Sodapop_Inflector::camelCapsToUnderscores($className, false));
+			  } else if ($_SESSION['user']->hasFormPermission(Sodapop_Inflector::camelCapsToUnderscores($className, false), null, 'VIEW')) {
+				 $_SESSION['user']->connection->defineFormClass(Sodapop_Inflector::camelCapsToUnderscores($className, false));
+			  }
+		   }
+		}
+		if (!class_exists($className)) {
+			
+		}
     }
 }
 
