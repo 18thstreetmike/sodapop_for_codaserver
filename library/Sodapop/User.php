@@ -27,12 +27,14 @@ class Sodapop_User {
 
     protected $applicationPermissions = array();
 
+	protected $availableModels = array();
+
     public function __construct($connection) {
         $this->connection = $connection;
     }
 
     public function __set($name, $value) {
-        $validFields = array('username', 'properties', 'permissions', 'roles', 'tablePermissions', 'formPermissions', 'procedurePermissions'. 'serverPermissions', 'applicationPermissions');
+        $validFields = array('username', 'properties', 'permissions', 'roles', 'tablePermissions', 'formPermissions', 'procedurePermissions'. 'serverPermissions', 'applicationPermissions', 'availableModels');
         if (in_array($name, $validFields)) {
             $this->$name = $value;
         }
@@ -44,6 +46,8 @@ class Sodapop_User {
             return $this->username;
         } else if ($name == 'connection') {
             return $this->connection;
+        } else if ($name == 'availableModels') {
+            return $this->availableModels;
         } else {
             return $this->properties[strtoupper($name)];
         }

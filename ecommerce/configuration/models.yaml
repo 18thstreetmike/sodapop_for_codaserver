@@ -19,6 +19,7 @@ orders:
       default:
     - type: search
   list_filter_label: Search
+  list_num_per_page: 20
   override_form: true
   field_groups:
     - group: Customer Information
@@ -72,6 +73,7 @@ customers:
   list_filters:
     - type: search
   list_filter_label: Search
+  list_num_per_page: 20
   field_groups:
     - group: Person Information
       fields:
@@ -100,6 +102,7 @@ products:
       default:
     - type: search
   list_filter_label: Search
+  list_num_per_page: 20
   field_groups:
     - group: Product Information
       fields:

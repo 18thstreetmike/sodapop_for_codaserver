@@ -46,4 +46,8 @@ abstract class Sodapop_Database_Form_Abstract extends Sodapop_Database_Table_Abs
 		}
 		return $retval;
 	}
+
+	public function getFormStatuses() {
+		return $this->formStatuses;
+	}
 }

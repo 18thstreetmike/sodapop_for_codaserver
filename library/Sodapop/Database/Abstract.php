@@ -14,7 +14,7 @@ abstract class Sodapop_Database_Abstract {
      * @param string $schema
      * @param string $environment
      */
-    public static abstract function getUser($hostname, $port, $username, $password, $schema, $environment, $group);
+    public static abstract function getUser($hostname, $port, $username, $password, $schema, $environment, $group, $availableModels);
 
     /**
      * This function returns a resultset matching the query specified.
@@ -51,8 +51,8 @@ abstract class Sodapop_Database_Abstract {
      */
     public abstract function destroy();
 
-    public abstract function defineTableClass($tableName);
+    public abstract function defineTableClass($tableName, $className);
 
-    public abstract function defineFormClass($formName);
+    public abstract function defineFormClass($formName, $className);
 
 }

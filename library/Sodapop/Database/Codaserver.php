@@ -26,7 +26,7 @@ class Sodapop_Database_Codaserver extends Sodapop_Database_Abstract {
 		}
 	}
 
-	public static function getUser($hostname, $port, $username, $password, $schema, $environment, $group) {
+	public static function getUser($hostname, $port, $username, $password, $schema, $environment, $group, $availableModels) {
 		// connect to the database and set the application
 		$connection = new Sodapop_Database_Codaserver();
 		$connection->connect($hostname, $port, $username, $password);
@@ -185,6 +185,15 @@ class Sodapop_Database_Codaserver extends Sodapop_Database_Abstract {
 		}
 		$user->applicationPermissions = $applicationPermissions;
 
+		$validAvailableModels = array();
+		foreach ($availableModels as $model) {
+			if ($user->hasTablePermission($model, 'SELECT') || $user->hasFormPermission($model, false, 'VIEW')) {
+				$validAvailableModels[] = $model;
+			}
+		}
+
+		$user->availableModels = $validAvailableModels;
+
 		return $user;
 	}
 
@@ -276,7 +285,7 @@ class Sodapop_Database_Codaserver extends Sodapop_Database_Abstract {
 		}
 	}
 
-	public function defineTableClass($tableName) {
+	public function defineTableClass($tableName, $className) {
 		$className = Sodapop_Inflector::underscoresToCamelCaps($tableName, false);
 		$columns = codaserver_describe_table_columns($this->codaserverConnection, $tableName);
 		$columnString = $this->getColumnDefinitionString($tableName);
@@ -315,11 +324,11 @@ class Sodapop_Database_Codaserver extends Sodapop_Database_Abstract {
 					}
 				}
 			}';
-		$classDef = "class ".Sodapop_Inflector::underscoresToCamelCaps($tableName, false)." extends Sodapop_Database_Table_Abstract {\n".$columnString."\n".$childTableString."\n".$overriddenFunctions."\n}";
+		$classDef = "class ".$className." extends Sodapop_Database_Table_Abstract {\n".$columnString."\n".$childTableString."\n".$overriddenFunctions."\n}";
 		eval($classDef);
 	}
 
-	public function defineFormClass($formName) {
+	public function defineFormClass($formName, $className) {
 		$className = Sodapop_Inflector::underscoresToCamelCaps($formName, false);
 		$columnString = $this->getColumnDefinitionString($formName, true);
 		$childTableString = $this->getChildTableString($formName);
@@ -360,7 +369,7 @@ class Sodapop_Database_Codaserver extends Sodapop_Database_Abstract {
 				}
 			}';
 
-		$classDef = "class ".Sodapop_Inflector::underscoresToCamelCaps($formName, false)." extends Sodapop_Database_Form_Abstract {\n".$columnString."\n".$childTableString."\n".$formStatusString."\n".$overriddenFunctions."\n}";
+		$classDef = "class ".$className." extends Sodapop_Database_Form_Abstract {\n".$columnString."\n".$childTableString."\n".$formStatusString."\n".$overriddenFunctions."\n}";
 		eval($classDef);
 	}
 
@@ -430,9 +439,9 @@ class Sodapop_Database_Codaserver extends Sodapop_Database_Abstract {
 				$formStatuses[$formStatus[0]]['initial_flag'] = $formStatus[5];
 			}
 		}
-		$formStatusString = 'protected $form_statuses = array(';
+		$formStatusString = 'protected $formStatuses = array(';
 		foreach ($formStatuses as $statusId => $statusArray) {
-			if ($formStatusString != 'protected $form_statuses = array(') {
+			if ($formStatusString != 'protected $formStatuses = array(') {
 				$formStatusString .= ',';
 			}
 			$formStatusString .= "'".$statusId."' => array(";
