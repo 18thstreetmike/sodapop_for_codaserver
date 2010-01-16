@@ -11,15 +11,15 @@ navigation:
     url: index
   - id: orders
     label: Orders
-    url: orders/index
+    url: order/index
     model: orders
   - id: customers
     label: Customers
-    url: customers/index
+    url: customer/index
     model: customers
   - id: products
     label: Products
-    url: products/index
+    url: product/index
     model: products
   - id: admin
     label: Admin

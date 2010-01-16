@@ -109,4 +109,15 @@ class Standard_Controller_Model extends Sodapop_Controller {
 		}
 		return $retval;
 	}
+	
+	protected function buildGrid($filterVars) {
+		  $retval = array('headings' =>array());
+		  if (isset($this->application->models[Sodapop_Inflector::camelCapsToUnderscores(get_class($this->model), false)]) && isset($this->application->models[Sodapop_Inflector::camelCapsToUnderscores(get_class($this->model), false)]['list_fields'])) {
+		     foreach ($this->application->models[Sodapop_Inflector::camelCapsToUnderscores(get_class($this->model), false)]['list_fields'] as $listField) {
+		     	     
+		     }
+		  } else {
+		    
+		  }
+	}
 }
