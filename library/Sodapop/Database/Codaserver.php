@@ -367,6 +367,10 @@ class Sodapop_Database_Codaserver extends Sodapop_Database_Abstract {
 						}
 					}
 				}
+			}
+
+			public function getStatusTableName() {
+				return "'.$this->codaserverTablePrefix.'form_statuses";
 			}';
 
 		$classDef = "class ".$className." extends Sodapop_Database_Form_Abstract {\n".$columnString."\n".$childTableString."\n".$formStatusString."\n".$overriddenFunctions."\n}";

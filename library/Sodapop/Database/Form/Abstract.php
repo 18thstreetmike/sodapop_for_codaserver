@@ -50,4 +50,6 @@ abstract class Sodapop_Database_Form_Abstract extends Sodapop_Database_Table_Abs
 	public function getFormStatuses() {
 		return $this->formStatuses;
 	}
+
+	public abstract function getStatusTableName();
 }

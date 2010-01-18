@@ -120,7 +120,11 @@ abstract class Sodapop_Database_Table_Abstract {
 	}
 
 	public function getFieldDefinition ($field){
-		return $this->fieldDefinitions[$field];
+		if (isset($this->fieldDefinitions[$field])) {
+			return $this->fieldDefinitions[$field];
+		} else {
+			return null;
+		}
 	}
 
 	public function getChildTableDefinitions (){

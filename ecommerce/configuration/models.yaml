@@ -7,9 +7,11 @@ orders:
   list_fields:
     - name: id
       link: orders/view/:id
-    - label: Customer Name
+    - name: last_name
+	  label: Customer Name
       concat: customer_id.last_name + ', ' + customer_id.first_name
-      link: customers/view/:customer_id
+      link: customer/view/:customer_id
+	  sort: customer_id.last_name
     - name: status
     - name: create_date
     - name: ship_date
@@ -67,8 +69,12 @@ customers:
     - name: first_name
     - name: last_name
     - name: email_address
-    - name: billing_address_id.state_prov
-    - name: billing_address_id.country
+    - name: state_prov
+      concat: billing_address_id.state_prov
+      sort: billing_address_id.state_prov
+    - name: country
+      concat: billing_address_id.country
+      sort: billing_address_id.country
   override_form: true
   list_filters:
     - type: search

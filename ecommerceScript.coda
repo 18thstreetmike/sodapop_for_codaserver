@@ -20,6 +20,10 @@ CREATE TABLE addresses DISPLAYED AS 'Addresses' IN APPLICATION ecommerce WITH SO
      postal_code STRING DISPLAYED AS 'Postal Code' NOT NULL
 );
 
+ALTER TABLE addresses ADD COLUMN state_prov STRING DISPLAYED AS 'State/Province' NOT NULL;
+
+ALTER TABLE addresses ADD COLUMN country STRING DISPLAYED AS 'Country' NOT NULL;
+
 CREATE TABLE customers DISPLAYED AS 'Customers' IN APPLICATION ecommerce WITH SOFT DELETE (
 	first_name STRING DISPLAYED AS 'First Name' NOT NULL,
 	last_name STRING DISPLAYED AS 'Last Name' NOT NULL,
@@ -76,11 +80,13 @@ GRANT MANAGE_ROLES ON ecommerce TO mike;
 
 CREATE PERMISSION view_reports DISPLAYED AS 'View Reports' IN APPLICATION ecommerce;
 
+CREATE ROLE ecommerce_user DISPLAYED AS 'Ecommerce User' IN APPLICATION ecommerce;
+
+CREATE ROLE public_ecommerce_user DISPLAYED AS 'Public Ecommerce User' IN APPLICATION ecommerce;
+
 GRANT view_reports IN ecommerce TO ecommerce_user;
 
 GRANT view_reports IN ecommerce TO public_ecommerce_user;
-
-CREATE ROLE ecommerce_user DISPLAYED AS 'Ecommerce User' IN APPLICATION ecommerce;
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE ecommerce.customers TO ecommerce_user;
 
@@ -116,12 +122,13 @@ GRANT ROLE ecommerce_user ON ecommerce.dev TO mike;
 
 GRANT CONNECT ON ecommerce.dev TO public_user;
 
-CREATE ROLE public_ecommerce_user DISPLAYED AS 'Public Ecommerce User' IN APPLICATION ecommerce;
 
 GRANT VIEW ON FORM ecommerce.products:stocked TO public_ecommerce_user;
 
 GRANT VIEW ON FORM ecommerce.products:backordered TO public_ecommerce_user;
 
 GRANT VIEW ON FORM ecommerce.products:withdrawn TO public_ecommerce_user;
+
+GRANT SELECT ON TABLE ecommerce.customers TO public_ecommerce_user;
 
 GRANT ROLE public_ecommerce_user ON ecommerce.dev TO public_user;
