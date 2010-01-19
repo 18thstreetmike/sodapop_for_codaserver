@@ -9,15 +9,17 @@ navigation:
   - id: index
     label: Home
     url: index
-  - id: orders
+  - id: order
     label: Orders
     url: order/index
     model: orders
-  - id: customers
+  - id: customer
     label: Customers
     url: customer/index
     model: customers
-  - id: products
+    description: |
+      This tab lets users view and add customer records.
+  - id: product
     label: Products
     url: product/index
     model: products

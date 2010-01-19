@@ -101,6 +101,15 @@ class Sodapop_Application {
 
 	}
 
+	public function getNavigationItem($name) {
+		foreach ($this->navigation as $navigationItem) {
+			if ($navigationItem['id'] == $name) {
+				return $navigationItem;
+			}
+		}
+		return null;
+	}
+
 	public function bootstrap () {
 		require_once($this->config['bootstrap.file_path']);
 		$bootstrap = new Bootstrap(&$this);
@@ -131,9 +140,14 @@ class Sodapop_Application {
 		$requestVariables = array();
 		$requestVariablesNumeric = array();
 
+		$requestUri = $_SERVER['REQUEST_URI'];
+		if (stripos($_SERVER['REQUEST_URI'], '?')) {
+			$requestUri = substr($_SERVER['REQUEST_URI'], 0 , stripos($_SERVER['REQUEST_URI'], '?'));
+		}
+
 		// figure out the root path
 		$indexPath = str_replace('/index.php', '', $_SERVER['SCRIPT_NAME']);
-		$routePath = str_replace($indexPath.'/', '', $_SERVER['REQUEST_URI']);
+		$routePath = str_replace($indexPath.'/', '', $requestUri);
 
 		// see if it's in the routes
 		foreach ($this->routes as $key => $route) {

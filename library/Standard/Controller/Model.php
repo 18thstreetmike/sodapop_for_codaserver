@@ -23,7 +23,8 @@ class Standard_Controller_Model extends Sodapop_Controller {
 			$this->joinedTables[] = 'model_statuses';
 		}
 		$this->view->stylesheets = array('/styles/style.css');
-		$this->view->currentTab = 'index';
+		$this->view->currentTab = strtolower(substr($modelClassname, 0, 1)).substr($modelClassname, 1);
+		
 	}
 
 	public function indexAction() {
@@ -32,6 +33,9 @@ class Standard_Controller_Model extends Sodapop_Controller {
 	}
 
 	public function listAction() {
+		$navigationItem = $this->application->getNavigationItem(strtolower(substr($this->modelClassname, 0, 1)).substr($this->modelClassname, 1));
+		$this->view->tabTitle = $navigationItem['label'];
+		$this->view->tabDescription = $navigationItem['description'];
 		$filterVars = $this->processListFilterRequest();
 		$this->view->filter = $this->buildFilter($filterVars);
 		$grid = $this->buildGrid($filterVars);
@@ -42,7 +46,7 @@ class Standard_Controller_Model extends Sodapop_Controller {
 	protected function processListFilterRequest(){
 		$retval = array('numPerPage' => (isset($this->application->models[Sodapop_Inflector::camelCapsToUnderscores(get_class($this->model), false)]) && isset($this->application->models[Sodapop_Inflector::camelCapsToUnderscores(get_class($this->model), false)]['list_num_per_page']) ? $this->application->models[Sodapop_Inflector::camelCapsToUnderscores(get_class($this->model), false)]['list_num_per_page'] : 10), 'filters' => array(), 'startIndex' => 0, 'orderBy' => 'id', 'orderDirection' => 'ASC');
 		foreach($this->request->variables() as $key => $value) {
-			if (strpos('filter_', $key) === 0) {
+			if (substr($key, 0, 7) == 'filter_') {
 				$keyName = substr($key, 7);
 				if ($keyName == 'numPerPage') {
 					$retval['numPerPage'] = $value;
@@ -53,7 +57,7 @@ class Standard_Controller_Model extends Sodapop_Controller {
 				} else if ($keyName == 'startIndex') {
 					$retval['startIndex'] = $value;
 				} else {
-					$retval['filters'][$key] = $value;
+					$retval['filters'][$keyName] = $value;
 				}
 			}
 		}
@@ -149,9 +153,9 @@ class Standard_Controller_Model extends Sodapop_Controller {
 			$heading = array('id' => $listField['name']);
 			if ($this->model instanceof Sodapop_Database_Form_Abstract && strtolower($listField['name']) == 'status') {
 				$heading['label'] = (isset($listField['label']) ? $listField['label'] : 'Status');
-				if (!in_array('model_statuses.adj_display_name', $this->selectedColumns)) {
+				if (!array_key_exists('model_statuses.adj_display_name', $this->selectedColumns)) {
 					$this->listSelectClause .= ($this->listSelectClause == '' ? ' ' : ', ').'model_statuses.adj_display_name AS '.Sodapop_Inflector::camelCapsToUnderscores($this->modelClassname, true).'_status';
-					$this->selectedColumns[] = 'model_statuses.adj_display_name';
+					$this->selectedColumns['model_statuses.adj_display_name'] = 'STRING';
 				}
 			} else {
 				$fieldDefinition = $this->model->getFieldDefinition(Sodapop_Inflector::underscoresToCamelCaps($listField['name'], true, false));
@@ -159,9 +163,9 @@ class Standard_Controller_Model extends Sodapop_Controller {
 					$heading['label'] = (isset($listField['label']) ? $listField['label'] : $fieldDefinition['display_name']);
 					$heading['printExpression'] = array(array('type' => 'field', 'field' => Sodapop_Inflector::camelCapsToUnderscores($this->modelClassname, true).'_'.$listField['name']));
 					$heading['sortField'] = Sodapop_Inflector::camelCapsToUnderscores($this->modelClassname, true).'_'.$listField['name'];
-					if (!in_array(Sodapop_Inflector::camelCapsToUnderscores($this->modelClassname, true).'.'.$listField['name'], $this->selectedColumns)) {
+					if (!array_key_exists(Sodapop_Inflector::camelCapsToUnderscores($this->modelClassname, true).'.'.$listField['name'], $this->selectedColumns)) {
 						$this->listSelectClause .= ($this->listSelectClause == '' ? ' ' : ', ').Sodapop_Inflector::camelCapsToUnderscores($this->modelClassname, true).'.'.$listField['name'].' AS '.Sodapop_Inflector::camelCapsToUnderscores($this->modelClassname, true).'_'.$listField['name'];
-						$this->selectedColumns[] = Sodapop_Inflector::camelCapsToUnderscores($this->modelClassname, true).'.'.$listField['name'];
+						$this->selectedColumns[Sodapop_Inflector::camelCapsToUnderscores($this->modelClassname, true).'.'.$listField['name']] = $fieldDefinition['type_name'];
 					}
 				} else {
 					$heading['label'] = (isset($listField['label']) ? $listField['label'] : 'Column '.(count($retval) + 1));
@@ -178,9 +182,9 @@ class Standard_Controller_Model extends Sodapop_Controller {
 								if (!is_null($partDefinition)) {
 									if (!isset($moreParts[1]) || $partDefinition['type_name'] != 'REFERENCE') {
 										$columnName = trim($moreParts[0]);
-										if (!in_array(Sodapop_Inflector::camelCapsToUnderscores($this->modelClassname, true).'.'.$columnName, $this->selectedColumns)) {
+										if (!array_key_exists(Sodapop_Inflector::camelCapsToUnderscores($this->modelClassname, true).'.'.$columnName, $this->selectedColumns)) {
 											$this->listSelectClause .= ($this->listSelectClause == '' ? ' ' : ', ').Sodapop_Inflector::camelCapsToUnderscores($this->modelClassname, true).'.'.$columnName.' AS '.Sodapop_Inflector::camelCapsToUnderscores($this->modelClassname, true).'_'.$columnName;
-											$this->selectedColumns[] = Sodapop_Inflector::camelCapsToUnderscores($this->modelClassname, true).'.'.$columnName;
+											$this->selectedColumns[Sodapop_Inflector::camelCapsToUnderscores($this->modelClassname, true).'.'.$columnName] = $partDefinition['type_name'];
 										}
 										$heading['printExpression'][] = array('type' => 'field', 'field' => Sodapop_Inflector::camelCapsToUnderscores($this->modelClassname, true).'_'.$columnName);
 										if (!isset($heading['sortField'])) {
@@ -191,9 +195,9 @@ class Standard_Controller_Model extends Sodapop_Controller {
 										$childObject = new $childTableClassname();
 										$childPartsDefinition = $childObject->getFieldDefinition(Sodapop_Inflector::underscoresToCamelCaps($moreParts[1], true, false));
 										if (!is_null($childPartsDefinition)) {
-											if (!in_array($moreParts[0].'.'.$moreParts[1], $this->selectedColumns)) {
+											if (!array_key_exists($moreParts[0].'.'.$moreParts[1], $this->selectedColumns)) {
 												$this->listSelectClause .= ($this->listSelectClause == '' ? ' ' : ', ').$moreParts[0].'.'.$moreParts[1].' AS '.$moreParts[0].'_'.$moreParts[1];
-												$this->selectedColumns[] = $moreParts[0].'.'.$moreParts[1];
+												$this->selectedColumns[$moreParts[0].'.'.$moreParts[1]] = $childPartsDefinition['type_name'];
 											}
 											if (!in_array($moreParts[0], $this->joinedTables)) {
 												$this->listFromClause .= ' LEFT OUTER JOIN '.strtolower($partDefinition['ref_table_name']).' AS '.$moreParts[0].' ON '.$moreParts[0].'.id = '.Sodapop_Inflector::camelCapsToUnderscores($this->modelClassname, true).'.'.$moreParts[0].' ';
@@ -239,9 +243,9 @@ class Standard_Controller_Model extends Sodapop_Controller {
 				if (!is_null($partDefinition)) {
 					if (!isset($fieldParts[1]) || $partDefinition['type_name'] != 'REFERENCE') {
 						$columnName = trim($fieldParts[0]);
-						if (!in_array(Sodapop_Inflector::camelCapsToUnderscores($this->modelClassname, true).'.'.$columnName, $this->selectedColumns)) {
+						if (!array_key_exists(Sodapop_Inflector::camelCapsToUnderscores($this->modelClassname, true).'.'.$columnName, $this->selectedColumns)) {
 							$this->listSelectClause .= ($this->listSelectClause == '' ? ' ' : ', ').Sodapop_Inflector::camelCapsToUnderscores($this->modelClassname, true).'.'.$columnName.' AS '.Sodapop_Inflector::camelCapsToUnderscores($this->modelClassname, true).'_'.$columnName;
-							$this->selectedColumns[] = Sodapop_Inflector::camelCapsToUnderscores($this->modelClassname, true).'.'.$columnName;
+							$this->selectedColumns[Sodapop_Inflector::camelCapsToUnderscores($this->modelClassname, true).'.'.$columnName] = $partDefinition['type_name'];
 						}
 						$retval[] = array('type' => 'field', 'field' => Sodapop_Inflector::camelCapsToUnderscores($this->modelClassname, true).'_'.$columnName);
 					} else {
@@ -249,9 +253,9 @@ class Standard_Controller_Model extends Sodapop_Controller {
 						$childObject = new $childTableClassname();
 						$childPartsDefinition = $childObject->getFieldDefinition(Sodapop_Inflector::underscoresToCamelCaps($fieldParts[1], true, false));
 						if (!is_null($childPartsDefinition)) {
-							if (!in_array($fieldParts[0].'.'.$fieldParts[1], $this->selectedColumns)) {
+							if (!array_key_exists($fieldParts[0].'.'.$fieldParts[1], $this->selectedColumns)) {
 								$this->listSelectClause .= ($this->listSelectClause == '' ? ' ' : ', ').$fieldParts[0].'.'.$fieldParts[1].' AS '.$fieldParts[0].'_'.$fieldParts[1];
-								$this->selectedColumns[] = $fieldParts[0].'.'.$fieldParts[1];
+								$this->selectedColumns[$fieldParts[0].'.'.$fieldParts[1]] = $childPartsDefinition['type_name'];
 							}
 							if (!in_array($fieldParts[0], $this->joinedTables)) {
 								$this->listFromClause .= ' LEFT OUTER JOIN '.strtolower($partDefinition['ref_table_name']).' AS '.$fieldParts[0].' ON '.$fieldParts[0].'.id = '.Sodapop_Inflector::camelCapsToUnderscores($this->modelClassname, true).'.'.$fieldParts[0].' ';
@@ -282,19 +286,34 @@ class Standard_Controller_Model extends Sodapop_Controller {
 				}
 				if ($key == 'search') {
 					// add each field in the select clause, then add each field from this model
-					$search = '(';
-					foreach ($this->selectedColumns as $column) {
-						if ($search != '(') {
-							$search .= ' OR ';
-						}
-						$search .= $column ." LIKE '%".str_replace("'", "''", $filter)."%' ";
-					}
-					foreach ($this->model->getFieldDefinitions() as $fieldName => $fieldDefinition) {
-						if (!in_array(Sodapop_Inflector::camelCapsToUnderscores($this->modelClassname).'.'.Sodapop_Inflector::camelCapsToUnderscores($fieldName), $this->selectedColumns)) {
-							if ($search != '(') {
+					$search = '( ';
+					foreach ($this->selectedColumns as $column => $typeName) {
+						if ($typeName != 'INTEGER' && $typeName != 'FLOAT' && $typeName != 'REFERENCE' && $typeName != 'TIMESTAMP') {
+							if ($search != '( ') {
 								$search .= ' OR ';
 							}
-							$search .= Sodapop_Inflector::camelCapsToUnderscores($this->modelClassname).'.'.Sodapop_Inflector::camelCapsToUnderscores($fieldName) ." LIKE '%".str_replace("'", "''", $filter)."%' ";
+							$search .= $column ." LIKE '%".str_replace("'", "''", $filter)."%' ";
+						} else if (is_numeric($filter) && ($typeName == 'INTEGER' || $typeName == 'FLOAT' || $typeName == 'REFERENCE')) {
+							if ($search != '( ') {
+								$search .= ' OR ';
+							}
+							$search .= $column ." = '".$filter."' ";
+						}
+					}
+					foreach ($this->model->getFieldDefinitions() as $fieldName => $fieldDefinition) {
+						$typeName = $fieldDefinition['type_name'];
+						if (!in_array(Sodapop_Inflector::camelCapsToUnderscores($this->modelClassname).'.'.Sodapop_Inflector::camelCapsToUnderscores($fieldName), $this->selectedColumns)) {
+							if ($typeName != 'INTEGER' && $typeName != 'FLOAT' && $typeName != 'REFERENCE' && $typeName != 'TIMESTAMP') {
+								if ($search != '( ') {
+									$search .= ' OR ';
+								}
+								$search .= Sodapop_Inflector::camelCapsToUnderscores($this->modelClassname).'.'.Sodapop_Inflector::camelCapsToUnderscores($fieldName) ." LIKE '%".str_replace("'", "''", $filter)."%' ";
+							} else if (is_numeric($filter) && ($typeName == 'INTEGER' || $typeName == 'FLOAT' || $typeName == 'REFERENCE')) {
+								if ($search != '( ') {
+									$search .= ' OR ';
+								}
+								$search .= $column ." = '".$filter."' ";
+							}
 						}
 					}
 					$whereClause .= $search . ') ';
@@ -320,6 +339,17 @@ class Standard_Controller_Model extends Sodapop_Controller {
 		}
 
 		$selectStatement = 'SELECT TOP '.$filterVars['numPerPage'].' STARTING AT '.$filterVars['startIndex'].' '.$this->listSelectClause.' FROM '.$this->listFromClause .' '.$whereClause.' '.$orderBy;
-		echo $selectStatement;
+		$result = $this->user->connection->runQUery($selectStatement);
+		$data = array();
+		foreach ($result['data'] as $row) {
+			$dataRow = array();
+			for($i = 0; $i < count($result['columns']); $i++) {
+				$dataRow[$result['columns'][$i]['columnname']] = $row[$i];
+			}
+			$data[] = $dataRow;
+		}
+		$retval['data'] = $data;
+		$retval['emptyRows'] = $retval['numPerPage'] - count($data);
+		return $retval;
 	}
 }

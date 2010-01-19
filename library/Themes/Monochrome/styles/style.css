@@ -96,6 +96,27 @@ div.screen-content {
     text-align: left;
 }
 
+div.screen-filter {
+    background-color: #CCC;
+    width: 98%;
+    text-align: left;
+	border: 1px #777 solid;
+	padding: 1%;
+}
+
+div.screen-filter div.screen-filter-button {
+    text-align: right;
+}
+
+div.screen-filter-item label {
+	font-size: 10pt;
+}
+
+div.screen-filter-item input {
+    border: 1px #777 solid;
+    padding: 2px;
+}
+
 div.error-box {
     margin: 5px 0 5px 0;
     border: 1px red solid;

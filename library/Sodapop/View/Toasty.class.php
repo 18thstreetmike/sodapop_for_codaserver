@@ -600,6 +600,10 @@ class Toasty {
         $this->variables = array();
     }
 
+	public function serializeVariable($variable) {
+		return htmlentities(serialize($variable));
+	}
+
     /**
      * Prepares uncleaned HTML for cleaning.
      *

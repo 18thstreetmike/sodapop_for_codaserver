@@ -21,7 +21,43 @@ class Themes_Monochrome_Widgets {
 		return '<div class="error-box">'.$innerContent.'</div>';
 	}
 
-	public static function FOOTERContainer($args = array(), $innerContent = '') {
+	public static function filterContainer($args = array(), $innerContent = '') {
+		$button = 'Update';
+		if (isset($args['button'])) {
+			$button = $args['button'];
+			unset($args['button']);
+		}
+		return '<div '.Themes_Monochrome_Widgets::standardArgs($args, 'screen-filter').'><form method="get">'.$innerContent.'<br style="clear: both;" /><div class="screen-filter-button"><input type="submit" value="'.$button.'" /></div></form></div>';
+	}
+
+	public static function filteritemTag ($args = array()) {
+		$id = $args['id'];
+		unset($args['id']);
+		$type = $args['type'];
+		unset($args['type']);
+		$default = $args['default'];
+		unset($args['default']);
+		$label = $args['label'];
+		unset($args['label']);
+		if ($type == 'select' && $args['options']) {
+			$options = unserialize(html_entities_decode($args['options']));
+			unset($args['options']);
+		}
+		$retval = '<div '.Themes_Monochrome_Widgets::standardArgs($args, 'screen-filter-item').'><label for="filter_'.$id.'">'.$label.'</label><br />';
+		if ($type == 'select' && isset($options) && is_array($options)) {
+			$retval .= '<select id="filter_'.$id.'" name="filter_'.$id.'">';
+			foreach ($options as $value => $option) {
+				$retval .= '<option value="'.$value.'"'.($default == $value ? ' selected="true"' : '').'>'.$option.'</option>';
+			}
+			$retval .= '</select>';
+		} else {
+			$retval .= '<input type="text" id="filter_'.$id.'" name="filter_'.$id.'" value="'.htmlentities($default).'" />';
+		}
+		return $retval.'</div>';
+
+	}
+
+	public static function footerContainer($args = array(), $innerContent = '') {
 		return '<div '.Themes_Monochrome_Widgets::standardArgs($args, 'screen-footer').'>'.$innerContent.'<br style="clear: both;" /></div>';
 	}
 
