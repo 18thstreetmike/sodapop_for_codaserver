@@ -1,0 +1,12 @@
+<div style="padding: 1em;">
+    <h3><?= $this->tabTitle ?></h3>
+	<p><?= $this->tabDescription ?></p>
+	<?php if (count($this->filter['filters']) > 0) { ?>
+		<filter button="<?= $this->filter['buttonLabel'] ? $this->filter['buttonLabel'] : 'Update' ?>">
+			<?php foreach ($this->filter['filters'] as $filter) { ?>
+				<filteritem label="<?= $filter['label'] ?>" id="<?= $filter['id'] ?>" type="<?= $filter['input'] ?>" default="<?= $filter['default'] ?>" <?php if (isset($filter['options'])) { ?><?= $this->serializeVariable($filter['options']) ?><?php } ?>  />
+			<?php } ?>
+		</filter>
+	<?php } ?>
+	<pre><?= var_dump($this->filter) ?></pre>
+</div>
