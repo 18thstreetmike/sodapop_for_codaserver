@@ -405,18 +405,20 @@ class Sodapop_Database_Codaserver extends Sodapop_Database_Abstract {
 	protected function getChildTableString($tableName) {
 		$childTables = codaserver_query($this->codaserverConnection, "SHOW TABLES WHERE p.table_name = '".strtoupper($tableName)."'");
 		$childTableString = 'protected $childTableDefinitions = array(';
-		foreach ($childTables['data'] as $childTable) {
-			if ($childTableString != 'protected $childTableDefinitions = array(') {
-				$childTableString .= ',';
-			}
-			$childTableString .= "'".Sodapop_Inflector::underscoresToCamelCaps($childTable[0], true, false)."' => array(";
-			for($i = 0; $i < count($childTable); $i++) {
-				if ($i > 0) {
+		if ($childTables) {
+			foreach ($childTables['data'] as $childTable) {
+				if ($childTableString != 'protected $childTableDefinitions = array(') {
 					$childTableString .= ',';
 				}
-				$childTableString .= "'".strtolower($childTables['columns'][$i]['columnname'])."' => '".addslashes($childTable[$i])."'";
+				$childTableString .= "'".Sodapop_Inflector::underscoresToCamelCaps($childTable[0], true, false)."' => array(";
+				for($i = 0; $i < count($childTable); $i++) {
+					if ($i > 0) {
+						$childTableString .= ',';
+					}
+					$childTableString .= "'".strtolower($childTables['columns'][$i]['columnname'])."' => '".addslashes($childTable[$i])."'";
+				}
+				$childTableString .= ",'lazyLoaded' => false, 'updated' => false);";
 			}
-			$childTableString .= ",'lazyLoaded' => false, 'updated' => false);";
 		}
 		$childTableString .= ');';
 		return $childTableString;

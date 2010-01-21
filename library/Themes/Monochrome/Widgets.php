@@ -5,16 +5,22 @@
  * @author michaelarace
  */
 class Themes_Monochrome_Widgets {
+	public static function actionbuttonsContainer($args = array(), $innerContent = '') {
+		if ($args['label']) {
+			$label = $args['label'];
+			unset($args['label']);
+			return '<fieldset '.Themes_Monochrome_Widgets::standardArgs($args, 'action-buttons').'><legend>'.$label.'</legend>'.$innerContent.'</fieldset>';
+		} else {
+			return '<div '.Themes_Monochrome_Widgets::standardArgs($args, 'action-buttons').'>'.$innerContent.'</div>';
+		}
+	}
+
 	public static function applicationContainer($args = array(), $innerContent = '') {
 		return '<html>'.$innerContent.'</html>';
 	}
 
 	public static function contentContainer($args = array(), $innerContent = '') {
 		return '<div '.Themes_Monochrome_Widgets::standardArgs($args, 'screen-content').'>'.$innerContent.'<br style="clear: both;" /></div>';
-	}
-
-	public static function datatableObject($args = array(), $innerXML = '') {
-
 	}
 
 	public static function errorboxContainer($args = array(), $innerContent = '') {
@@ -40,7 +46,7 @@ class Themes_Monochrome_Widgets {
 		$label = $args['label'];
 		unset($args['label']);
 		if ($type == 'select' && $args['options']) {
-			$options = unserialize(html_entities_decode($args['options']));
+			$options = unserialize(html_entity_decode($args['options']));
 			unset($args['options']);
 		}
 		$retval = '<div '.Themes_Monochrome_Widgets::standardArgs($args, 'screen-filter-item').'><label for="filter_'.$id.'">'.$label.'</label><br />';
@@ -61,6 +67,10 @@ class Themes_Monochrome_Widgets {
 		return '<div '.Themes_Monochrome_Widgets::standardArgs($args, 'screen-footer').'>'.$innerContent.'<br style="clear: both;" /></div>';
 	}
 
+	public static function gridObject($args = array(), $innerXML = '') {
+
+	}
+
 	public static function headerContainer($args = array(), $innerContent = '') {
 		return '<div '.Themes_Monochrome_Widgets::standardArgs($args, 'screen-header').'>'.$innerContent.'<br style="clear: both;" /></div>';
 	}
@@ -68,6 +78,15 @@ class Themes_Monochrome_Widgets {
 	public static function hiddenTag($args = array()) {
 		return '<input type="hidden" id="'.$args['id'].'" name="'.$args['id'].'" value="'.htmlentities($args['value']).'" />';
 	}
+
+	public static function listbuttonTag($args = array()) {
+		$link = $args['link'];
+		unset ($args['link']);
+		$label = $args['label'];
+		unset ($args['label']);
+		return '<div '.Themes_Monochrome_Widgets::standardArgs($args, 'action-buttons-list-button').'><form action="'.$link.'" method="post"><input type="submit" value="'.htmlentities($label).'" /></form></div>';
+	}
+
 
 	public static function logoTag($args = array()) {
 		if (isset($args['image'])) {
@@ -88,6 +107,10 @@ class Themes_Monochrome_Widgets {
 			$output .= '<li id="'.$tab->attributes()->id.'" class="navtab'.($args['current'] == $tab->attributes()->id ? ' current-navtab' : '').'"><a href="'.$tab->attributes()->url.'">'.$tab->attributes()->label.'</a></li>';
 		}
 		return $output.'</ul></div>';
+	}
+
+	public static function pageContainer($args = array(), $innerContent = '') {
+		return '<div '.Themes_Monochrome_Widgets::standardArgs($args, '').'>'.$innerContent.'</div>';
 	}
 
 	public static function passwordTag ($args = array()) {

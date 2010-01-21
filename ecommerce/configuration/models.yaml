@@ -8,10 +8,10 @@ orders:
     - name: id
       link: orders/view/:id
     - name: last_name
-	  label: Customer Name
+      label: Customer Name
       concat: customer_id.last_name + ', ' + customer_id.first_name
       link: customer/view/:customer_id
-	  sort: customer_id.last_name
+      sort: customer_id.last_name
     - name: status
     - name: create_date
     - name: ship_date
@@ -78,6 +78,7 @@ customers:
   override_form: true
   list_filters:
     - type: search
+    - type: num_per_page
   list_filter_label: Search
   list_num_per_page: 20
   field_groups:

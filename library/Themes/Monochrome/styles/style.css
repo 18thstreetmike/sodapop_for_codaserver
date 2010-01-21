@@ -16,6 +16,14 @@ input {
     padding: 2px;
 }
 
+select {
+    border: 1px #DDD solid;
+}
+
+select option {
+	padding: 1px;
+}
+
 h3 {
     margin: 5px 0 5px 0;
 }
@@ -92,8 +100,9 @@ div.screen-header a {
 div.screen-content {
     background-color: #FFF;
     margin: 0 auto 0 auto;
-    width: 95%;
+    width: 93%;
     text-align: left;
+	padding: 1%;
 }
 
 div.screen-filter {
@@ -108,13 +117,33 @@ div.screen-filter div.screen-filter-button {
     text-align: right;
 }
 
+div.screen-filter-item {
+	width: 170px;
+	float: left;
+}
+
 div.screen-filter-item label {
 	font-size: 10pt;
 }
 
 div.screen-filter-item input {
     border: 1px #777 solid;
-    padding: 2px;
+}
+
+div.screen-filter-item select {
+    border: 1px #777 solid;
+}
+
+fieldset.action-buttons {
+	border: 1px #777 solid;
+	width: 98%;
+	padding: 0 1% 1% 1%;
+	background-color: #EEE;
+}
+
+fieldset.action-buttons legend {
+	font-size: 10pt;
+	padding: 5px;
 }
 
 div.error-box {

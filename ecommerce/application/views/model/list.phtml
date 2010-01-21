@@ -1,12 +1,29 @@
-<div style="padding: 1em;">
-    <h3><?= $this->tabTitle ?></h3>
+<page>
+	<h3><?= $this->tabTitle ?></h3>
 	<p><?= $this->tabDescription ?></p>
 	<?php if (count($this->filter['filters']) > 0) { ?>
-		<filter button="<?= $this->filter['buttonLabel'] ? $this->filter['buttonLabel'] : 'Update' ?>">
-			<?php foreach ($this->filter['filters'] as $filter) { ?>
-				<filteritem label="<?= $filter['label'] ?>" id="<?= $filter['id'] ?>" type="<?= $filter['input'] ?>" default="<?= $filter['default'] ?>" <?php if (isset($filter['options'])) { ?><?= $this->serializeVariable($filter['options']) ?><?php } ?>  />
-			<?php } ?>
-		</filter>
+	<filter button="<?= $this->filter['buttonLabel'] ? $this->filter['buttonLabel'] : 'Update' ?>">
+		<?php foreach ($this->filter['filters'] as $filter) { ?>
+		<filteritem label="<?= $filter['label'] ?>" id="<?= $filter['id'] ?>" type="<?= $filter['input'] ?>" default="<?= $filter['default'] ?>" <?php if (isset($filter['options'])) { ?>options="<?= $this->serializeVariable($filter['options']) ?>"<?php } ?> />
+		<?php } ?>
+	</filter>
 	<?php } ?>
-	<pre><?= var_dump($this->filter) ?></pre>
-</div>
+	<?php if (count($this->actions) > 0) { ?>
+	<actionbuttons label="Actions">
+		<?php foreach ($this->actions as $action) { ?>
+			<?php foreach ($action as $link => $label) { ?>
+			<listbutton label="<?= $label ?>" link="<?= $this->baseUrl.'/'.$link ?>" />
+			<?php } ?>
+		<?php } ?>
+	</actionbuttons>
+	<?php } ?>
+	<grid>
+		<gridhead>
+			<?php foreach($this->grid as $heading) { ?>
+			<gh></gh>
+			<?php } ?>
+		</gridhead>
+	</grid>
+
+	<pre><?= var_dump($this->grid) ?></pre>
+</page>

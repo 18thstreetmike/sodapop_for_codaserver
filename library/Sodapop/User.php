@@ -80,7 +80,7 @@ class Sodapop_User {
     public function hasFormPermission($form, $statusAdj = true, $permission) {
         if (isset($this->formPermissions[strtoupper($form)]) && is_array($this->formPermissions[strtoupper($form)])) {
             if ($statusAdj) {
-                if (is_array($this->formPermissions[strtoupper($form)][$statusId])) {
+                if (isset($this->formPermissions[strtoupper($form)][$statusAdj]) && is_array($this->formPermissions[strtoupper($form)][$statusAdj])) {
                     return in_array(strtoupper($permission), $this->formPermissions[strtoupper($form)][$statusAdj]);
                 } else {
                     return false;
