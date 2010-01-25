@@ -41,6 +41,7 @@ class Standard_Controller_Model extends Sodapop_Controller {
 			$this->view->tabDescription = '';
 		}
 		$filterVars = $this->processListFilterRequest();
+		$this->view->listState = $this->buildListState($filterVars);
 		$this->view->filter = $this->buildFilter($filterVars);
 		$grid = $this->buildGrid($filterVars);
 		$this->view->grid = $grid;
@@ -67,6 +68,25 @@ class Standard_Controller_Model extends Sodapop_Controller {
 			}
 		}
 		return $retval;
+	}
+
+	protected function buildListState($filterVars) {
+		  $retval = array();
+		  $retval['sort'] = '&filter_startIndex=0&filter_numPerPage='.$filterVars['numPerPage'];
+		  $retval['nextPage'] = '&filter_startIndex='.($filterVars['startIndex'] + $filterVars['numPerPage']).'&filter_numPerPage='.$filterVars['numPerPage'];
+		  $retval['lastPage'] = '&filter_startIndex='.($filterVars['startIndex'] - $filterVars['numPerPage']).'&filter_numPerPage='.$filterVars['numPerPage'];	  
+		  foreach($filterVars['filters'] as $key => $filter) {
+		  	$retval['sort'] .= '&filter_'.$key.'='.urlencode($filter);
+			$retval['nextPage'] .= '&filter_'.$key.'='.urlencode($filter);
+			$retval['lastPage'] .= '&filter_'.$key.'='.urlencode($filter);
+		  }
+		  $retval['filter'] = '';
+		  foreach($filterVars as $key => $filter) {
+		  	if ($key != 'filters') {
+			   $retval['filter'] .= '<input type="hidden" name="filter_'.$key.'" value="'.htmlentities($filter).'" />';
+			}
+		  } 
+		  return $retval;
 	}
 
 	protected function buildFilter($filterVars) {

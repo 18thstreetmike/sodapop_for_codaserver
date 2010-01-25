@@ -48,7 +48,8 @@ class Toasty {
      * @param string $cacheDirectory
      */
     public function __construct($config = array()) {
-        foreach ($config as $key => $value) {
+        libxml_use_internal_errors(true);
+		foreach ($config as $key => $value) {
             switch($key) {
                 case 'widget_class':
                     $this->setWidgetClass($value);
@@ -346,12 +347,18 @@ class Toasty {
 
                     // build the XML document with simple XML
             /* $object = simplexml_load_string("<?xml version='1.0'?><document>".$file."</document>");*/
+					
+					
+					$object = simplexml_load_string($file);
+					if (!$object) {
+						$file = $this->makeWellFormed($file);
+						$object = simplexml_load_string($file);
+					}
 
-                    $object = simplexml_load_string($file);
-
+					//echo $file; die;
                     // check to see if the resulting file is actually XML
                     if (!$object) {
-                        throw new Exception('File not valid XML.');
+						throw new Exception('File not valid XML.');
                     } else {
                         $output = $this->processNode($object);
                     }
@@ -623,6 +630,21 @@ class Toasty {
         }
         return implode("\n", $fixedtext_array);
     }
+
+	private function makeWellFormed($file) {
+		// fix unescaped entities in attributes
+		$file = preg_replace_callback(
+			'/=\"([^\"]*)\"/',
+			create_function(
+				// single quotes are essential here,
+				// or alternative escape all $ as \$
+				'$matches',
+				'return "=\"".htmlentities($matches[1])."\"";'
+			),
+			$file
+		);
+		return $file;
+	}
 
     /**
      * Cleans unclean HTML.

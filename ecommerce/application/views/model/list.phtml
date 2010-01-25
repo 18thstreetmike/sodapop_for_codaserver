@@ -2,7 +2,7 @@
 	<h3><?= $this->tabTitle ?></h3>
 	<p><?= $this->tabDescription ?></p>
 	<?php if (count($this->filter['filters']) > 0) { ?>
-	<filter button="<?= $this->filter['buttonLabel'] ? $this->filter['buttonLabel'] : 'Update' ?>">
+	<filter button="<?= $this->filter['buttonLabel'] ? $this->filter['buttonLabel'] : 'Update' ?>" state="<?= htmlentities($this->listState['filter']) ?>">
 		<?php foreach ($this->filter['filters'] as $filter) { ?>
 		<filteritem label="<?= $filter['label'] ?>" id="<?= $filter['id'] ?>" type="<?= $filter['input'] ?>" default="<?= $filter['default'] ?>" <?php if (isset($filter['options'])) { ?>options="<?= $this->serializeVariable($filter['options']) ?>"<?php } ?> />
 		<?php } ?>
@@ -19,8 +19,8 @@
 	<?php } ?>
 	<grid>
 		<gridhead>
-			<?php foreach($this->grid as $heading) { ?>
-			<gh></gh>
+			<?php foreach($this->grid['headings'] as $heading) { ?>
+			<gh <?= ($heading['orderBy'] ? 'order_by="true" order_direction="'.$heading['orderDirection'].'"' : '') ?> <?php if (isset($heading['sortField'])) { ?>link="?filter_orderBy=<?= $heading['sortField'] ?>&filter_orderDirection=<?= (strtoupper($heading['orderDirection']) == 'ASC' ? 'DESC' : 'ASC') ?><?= $this->listState['sort'] ?>"<?php } ?>><?= $heading['label'] ?></gh>
 			<?php } ?>
 		</gridhead>
 	</grid>

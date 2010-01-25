@@ -146,6 +146,12 @@ fieldset.action-buttons legend {
 	padding: 5px;
 }
 
+div.screen-grid {
+	width: 100%;
+	padding: 0px;
+	margin: 1% 0;
+}
+
 div.error-box {
     margin: 5px 0 5px 0;
     border: 1px red solid;

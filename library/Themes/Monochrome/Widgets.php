@@ -8,8 +8,7 @@ class Themes_Monochrome_Widgets {
 	public static function actionbuttonsContainer($args = array(), $innerContent = '') {
 		if ($args['label']) {
 			$label = $args['label'];
-			unset($args['label']);
-			return '<fieldset '.Themes_Monochrome_Widgets::standardArgs($args, 'action-buttons').'><legend>'.$label.'</legend>'.$innerContent.'</fieldset>';
+			return '<fieldset '.Themes_Monochrome_Widgets::standardArgs($args, 'action-buttons', array('label')).'><legend>'.$label.'</legend>'.$innerContent.'</fieldset>';
 		} else {
 			return '<div '.Themes_Monochrome_Widgets::standardArgs($args, 'action-buttons').'>'.$innerContent.'</div>';
 		}
@@ -31,25 +30,19 @@ class Themes_Monochrome_Widgets {
 		$button = 'Update';
 		if (isset($args['button'])) {
 			$button = $args['button'];
-			unset($args['button']);
 		}
-		return '<div '.Themes_Monochrome_Widgets::standardArgs($args, 'screen-filter').'><form method="get">'.$innerContent.'<br style="clear: both;" /><div class="screen-filter-button"><input type="submit" value="'.$button.'" /></div></form></div>';
+		return '<div '.Themes_Monochrome_Widgets::standardArgs($args, 'screen-filter', array('button', 'state')).'><form method="get">'.(isset($args['state']) ? html_entity_decode($args['state']) : '').$innerContent.'<br style="clear: both;" /><div class="screen-filter-button"><input type="submit" value="'.$button.'" /></div></form></div>';
 	}
 
 	public static function filteritemTag ($args = array()) {
 		$id = $args['id'];
-		unset($args['id']);
 		$type = $args['type'];
-		unset($args['type']);
 		$default = $args['default'];
-		unset($args['default']);
 		$label = $args['label'];
-		unset($args['label']);
 		if ($type == 'select' && $args['options']) {
 			$options = unserialize(html_entity_decode($args['options']));
-			unset($args['options']);
 		}
-		$retval = '<div '.Themes_Monochrome_Widgets::standardArgs($args, 'screen-filter-item').'><label for="filter_'.$id.'">'.$label.'</label><br />';
+		$retval = '<div '.Themes_Monochrome_Widgets::standardArgs($args, 'screen-filter-item', array('id', 'type', 'default', 'label', 'options')).'><label for="filter_'.$id.'">'.$label.'</label><br />';
 		if ($type == 'select' && isset($options) && is_array($options)) {
 			$retval .= '<select id="filter_'.$id.'" name="filter_'.$id.'">';
 			foreach ($options as $value => $option) {
@@ -68,7 +61,21 @@ class Themes_Monochrome_Widgets {
 	}
 
 	public static function gridObject($args = array(), $innerXML = '') {
-
+		$xml = simplexml_load_string($innerXML);
+		var_dump($xml);
+		$retval = '<table '.Themes_Monochrome_Widgets::standardArgs($args, 'screen-grid').'>';
+		if ($xml->gridhead) {
+			$retval .= '<thead><tr>';
+			foreach($xml->gridhead->children() as $gh) {
+				$attributes = array();
+				foreach ($gh->attributes() as $key => $value) {
+					$attributes[$key] = $value;
+				}
+				$retval .= '<th '.Themes_Monochrome_Widgets::standardArgs($args, 'screen-grid-th'.(isset($args['order_by']) && $args['order_by'] == 'true' ? '-current' : '').(isset($args['order_direction']) ? '-'.strtolower($args['order_direction']) : '') , array('link', 'order_by', 'order_direction')).'>'.(isset($attributes['link']) ? '<a href="'.html_entity_decode($attributes['link']).'">' : '').$gh.(isset($attributes['link']) ? '</a>' : '').'</th>';
+			}
+			$retval .= '</tr></thead>';
+		}
+		return $retval.'</table>';
 	}
 
 	public static function headerContainer($args = array(), $innerContent = '') {
