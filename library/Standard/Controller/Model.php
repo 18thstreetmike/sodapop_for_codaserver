@@ -74,11 +74,11 @@ class Standard_Controller_Model extends Sodapop_Controller {
 		  $retval = array();
 		  $retval['sort'] = '&filter_startIndex=0&filter_numPerPage='.$filterVars['numPerPage'];
 		  $retval['nextPage'] = '&filter_startIndex='.($filterVars['startIndex'] + $filterVars['numPerPage']).'&filter_numPerPage='.$filterVars['numPerPage'];
-		  $retval['lastPage'] = '&filter_startIndex='.($filterVars['startIndex'] - $filterVars['numPerPage']).'&filter_numPerPage='.$filterVars['numPerPage'];	  
+		  $retval['prevPage'] = '&filter_startIndex='.($filterVars['startIndex'] - $filterVars['numPerPage']).'&filter_numPerPage='.$filterVars['numPerPage'];
 		  foreach($filterVars['filters'] as $key => $filter) {
 		  	$retval['sort'] .= '&filter_'.$key.'='.urlencode($filter);
 			$retval['nextPage'] .= '&filter_'.$key.'='.urlencode($filter);
-			$retval['lastPage'] .= '&filter_'.$key.'='.urlencode($filter);
+			$retval['prevPage'] .= '&filter_'.$key.'='.urlencode($filter);
 		  }
 		  $retval['filter'] = '';
 		  foreach($filterVars as $key => $filter) {
@@ -179,9 +179,10 @@ class Standard_Controller_Model extends Sodapop_Controller {
 			if ($this->model instanceof Sodapop_Database_Form_Abstract && strtolower($listField['name']) == 'status') {
 				$heading['label'] = (isset($listField['label']) ? $listField['label'] : 'Status');
 				if (!array_key_exists('model_statuses.adj_display_name', $this->selectedColumns)) {
-					$this->listSelectClause .= ($this->listSelectClause == '' ? ' ' : ', ').'model_statuses.adj_display_name AS '.Sodapop_Inflector::camelCapsToUnderscores($this->modelClassname, true).'_status';
+					$this->listSelectClause .= ($this->listSelectClause == '' ? ' ' : ', ').'model_statuses.adj_display_name AS '.$this->createAlias($this->modelClassname).'_status';
 					$this->selectedColumns['model_statuses.adj_display_name'] = 'STRING';
 				}
+				$heading['sortField'] = $this->createAlias($this->modelClassname).'_status';
 			} else {
 				$fieldDefinition = $this->model->getFieldDefinition(Sodapop_Inflector::underscoresToCamelCaps($listField['name'], true, false));
 				if (!is_null($fieldDefinition)) {
@@ -247,7 +248,7 @@ class Standard_Controller_Model extends Sodapop_Controller {
 			if (isset($listField['link']) && $listField['link']) {
 				$heading['link'] = $this->processLink($listField['link']);
 			}
-			$heading['orderBy'] = $filterVars['orderBy'] == $listField['name'];
+			$heading['orderBy'] = $filterVars['orderBy'] == $heading['sortField'];
 			$heading['orderDirection'] = $filterVars['orderDirection'];
 			$retval[] = $heading;
 		}
@@ -309,7 +310,7 @@ class Standard_Controller_Model extends Sodapop_Controller {
 				} else {
 					$whereClause .= ' AND ';
 				}
-				if ($key == 'search') {
+				if ($key == 'search' && trim($filter) != '') {
 					// add each field in the select clause, then add each field from this model
 					$search = '( ';
 					foreach ($this->selectedColumns as $column => $typeName) {

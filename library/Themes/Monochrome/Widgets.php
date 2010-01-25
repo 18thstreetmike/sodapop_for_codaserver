@@ -62,7 +62,6 @@ class Themes_Monochrome_Widgets {
 
 	public static function gridObject($args = array(), $innerXML = '') {
 		$xml = simplexml_load_string($innerXML);
-		var_dump($xml);
 		$retval = '<table '.Themes_Monochrome_Widgets::standardArgs($args, 'screen-grid').'>';
 		if ($xml->gridhead) {
 			$retval .= '<thead><tr>';
@@ -71,10 +70,36 @@ class Themes_Monochrome_Widgets {
 				foreach ($gh->attributes() as $key => $value) {
 					$attributes[$key] = $value;
 				}
-				$retval .= '<th '.Themes_Monochrome_Widgets::standardArgs($args, 'screen-grid-th'.(isset($args['order_by']) && $args['order_by'] == 'true' ? '-current' : '').(isset($args['order_direction']) ? '-'.strtolower($args['order_direction']) : '') , array('link', 'order_by', 'order_direction')).'>'.(isset($attributes['link']) ? '<a href="'.html_entity_decode($attributes['link']).'">' : '').$gh.(isset($attributes['link']) ? '</a>' : '').'</th>';
+				$retval .= '<th '.Themes_Monochrome_Widgets::standardArgs($attributes, 'screen-grid-th'.(isset($attributes['order_by']) && $attributes['order_by'] == 'true' ? '-current' : '').(isset($attributes['order_direction']) ? '-'.strtolower($attributes['order_direction']) : '') , array('link', 'order_by', 'order_direction')).'>'.(isset($attributes['link']) ? '<a href="'.html_entity_decode($attributes['link']).'">' : '').$gh.(isset($attributes['link']) ? '</a>' : '').'</th>';
 			}
 			$retval .= '</tr></thead>';
 		}
+		if ($xml->pagination) {
+			$attributes = array();
+			foreach ($xml->pagination->attributes() as $key => $value) {
+				$attributes[$key] = $value;
+			}
+			if ($attributes['type'] == 'simple') {
+				$retval .= '<tfoot><tr><th colspan="'.count($xml->gridhead->children()).'"><div class="screen-grid-pagination"><div class="prev">'.($xml->pagination->startIndex > 0 ? '<a href="'.$attributes['prevlink'].'">&laquo; Previous</a>' : '&#160;').'</div>';
+				$retval .= '<div class="displaying">'.($xml->pagination->total > 0 ? 'Displaying '.($xml->pagination->startindex + 1).' - '.($xml->pagination->startindex + $xml->pagination->numperpage < $xml->pagination->total ? $xml->pagination->startindex + $xml->pagination->numperpage : $xml->pagination->total - $xml->pagination->startindex).' of '.$xml->pagination->total : '&#160;').'</div>';
+				$retval .= '<div class="next">'.($xml->pagination->startindex + $xml->pagination->numperpage < $xml->pagination->total  ? '<a href="'.$attributes['nextlink'].'">Next &raquo;</a>' : '&#160;').'</div></div></th></tr></tfoot>';
+			}
+		}
+		$retval .= '<tbody>';
+		$i = 0;
+		foreach($xml->gridbody->children() as $gr) {
+			$retval .= '<tr '.($i % 2 == 0 ? 'class="screen-grid-td-even"' : 'class="screen-grid-td-odd"').'>';
+			foreach ($gr->children() as $gd) {
+				if($gd->children() > 0) {
+					$retval .= '<td>'.$gd->asXML().'</td>';
+				} else {
+					$retval .= '<td>'.$gd.'</td>';
+				}
+			}
+			$retval .= '</tr>';
+			$i++;
+		}
+		$retval .= '</tbody>';
 		return $retval.'</table>';
 	}
 

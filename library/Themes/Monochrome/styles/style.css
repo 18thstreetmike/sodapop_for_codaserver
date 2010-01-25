@@ -146,10 +146,105 @@ fieldset.action-buttons legend {
 	padding: 5px;
 }
 
-div.screen-grid {
+table.screen-grid {
 	width: 100%;
-	padding: 0px;
+	padding: 1px;
 	margin: 1% 0;
+	border: solid 1px #000;
+	font-family: Helvetica, sans-serif;
+    font-size: 11pt;
+	border-spacing: 0;
+}
+
+table.screen-grid a {
+	color: black;
+}
+
+table.screen-grid th.screen-grid-th  {
+	padding: 2px;
+	background-color: #888;
+	color: #FFF;
+	text-align: left;
+}
+
+table.screen-grid th.screen-grid-th a {
+	color: #FFF;
+	text-decoration: none;
+}
+
+th.screen-grid-th-current-asc {
+	padding: 2px;
+	color: #FFF;
+	background: url(../images/up_icon.png) no-repeat 99% 50%;
+	background-color: #666;
+	text-align: left;
+}
+
+th.screen-grid-th-current-asc a {
+	color: #FFF;
+	text-decoration: none;
+}
+
+th.screen-grid-th-current-desc {
+	padding: 2px;
+	color: #FFF;
+	background: url(../images/down_icon.png) no-repeat 99% 50%;
+	background-color: #666;
+	text-align: left;
+}
+
+th.screen-grid-th-current-desc a {
+	color: #FFF;
+	text-decoration: none;
+}
+
+tr.screen-grid-td-odd {
+	background-color: #DDD;
+}
+
+tr.screen-grid-td-odd td {
+	border-right: #BBB 1px solid;
+	padding: 2px;
+}
+
+tr.screen-grid-td-even {
+	background-color: #FFF;
+}
+
+tr.screen-grid-td-even td {
+	border-right: #DDD 1px solid;
+	padding: 2px;
+}
+
+div.screen-grid-pagination {
+	background-color: #888;
+	color: #FFF;
+}
+
+div.screen-grid-pagination a {
+	color: #FFF;
+	text-decoration: none;
+}
+
+div.screen-grid-pagination div.prev {
+	background-color: #888;
+	float: left;
+	width: 10%;
+	text-align: center;
+}
+
+div.screen-grid-pagination div.displaying {
+	background-color: #888;
+	float: left;
+	width: 80%;
+	text-align: center;
+}
+
+div.screen-grid-pagination div.next {
+	background-color: #888;
+	float: left;
+	width: 10%;
+	text-align: center;
 }
 
 div.error-box {

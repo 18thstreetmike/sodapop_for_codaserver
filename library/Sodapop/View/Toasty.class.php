@@ -355,8 +355,8 @@ class Toasty {
 						$object = simplexml_load_string($file);
 					}
 
-					//echo $file; die;
-                    // check to see if the resulting file is actually XML
+					//var_dump(libxml_get_errors());
+					// check to see if the resulting file is actually XML
                     if (!$object) {
 						throw new Exception('File not valid XML.');
                     } else {
@@ -643,6 +643,7 @@ class Toasty {
 			),
 			$file
 		);
+		libxml_clear_errors();
 		return $file;
 	}
 

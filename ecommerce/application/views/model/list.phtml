@@ -23,7 +23,41 @@
 			<gh <?= ($heading['orderBy'] ? 'order_by="true" order_direction="'.$heading['orderDirection'].'"' : '') ?> <?php if (isset($heading['sortField'])) { ?>link="?filter_orderBy=<?= $heading['sortField'] ?>&filter_orderDirection=<?= (strtoupper($heading['orderDirection']) == 'ASC' ? 'DESC' : 'ASC') ?><?= $this->listState['sort'] ?>"<?php } ?>><?= $heading['label'] ?></gh>
 			<?php } ?>
 		</gridhead>
+		<gridbody emptyrows="<?php $this->data['emptyRows'] ?>">
+			<?php if ($this->data['totalRows'] > 0) { ?>
+				<?php foreach($this->data['data'] as $key => $row) { ?>
+					<gr>
+					<?php foreach($this->grid['headings'] as $heading) { ?>
+						<gd>
+							<?php if (isset($heading['link'])) { ?>
+								<a href="<?= $this->baseUrl ?><?php 
+									foreach($heading['link'] as $parts) {
+										if ($parts['type'] == 'text') {
+											echo $parts['text'];
+										} else if( $parts['type'] == 'field') {
+											echo $row[$parts['field']];
+										}
+									}
+								?>">
+							<?php } ?>
+							<?= $row[$heading['sortField']] ?>
+							<?php if (isset($heading['link'])) { ?>
+								</a>
+							<?php } ?>
+						</gd>
+					<?php } ?>
+					</gr>
+				<?php } ?>
+			<?php } else { ?>
+				<gr>
+					<gd colspan="<?= count($this->grid['headings']) ?>">No data matches your search!</gd>
+				</gr>
+			<?php } ?>
+		</gridbody>
+		<pagination type="simple" prevlink="<?= $this->listState['prevPage'] ?>" nextlink="<?= $this->listState['nextPage'] ?>">
+			<startindex><?= $this->data['startIndex'] ?></startindex>
+			<numperpage><?= $this->data['numPerPage'] ?></numperpage>
+			<total><?= $this->data['totalRows'] ?></total>
+		</pagination>
 	</grid>
-
-	<pre><?= var_dump($this->grid) ?></pre>
 </page>
