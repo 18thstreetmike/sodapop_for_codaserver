@@ -91,7 +91,7 @@ class Themes_Monochrome_Widgets {
 			$retval .= '<tr '.($i % 2 == 0 ? 'class="screen-grid-td-even"' : 'class="screen-grid-td-odd"').'>';
 			foreach ($gr->children() as $gd) {
 				if($gd->children() > 0) {
-					$retval .= '<td>'.$gd->asXML().'</td>';
+					$retval .= '<td>'.html_entity_decode($gd->asXML(), ENT_NOQUOTES).'</td>';
 				} else {
 					$retval .= '<td>'.$gd.'</td>';
 				}

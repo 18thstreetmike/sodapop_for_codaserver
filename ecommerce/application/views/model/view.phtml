@@ -1,0 +1,14 @@
+<page>
+	<h3><?= $this->tabTitle ?></h3>
+	<p><?= $this->tabDescription ?></p>
+	
+	<?php if (count($this->actions) > 0) { ?>
+	<actionbuttons>
+		<?php foreach ($this->actions as $action) { ?>
+			<?php foreach ($action as $link => $label) { ?>
+			<listbutton label="<?= $label ?>" link="<?= $this->baseUrl.'/'.$link ?>" />
+			<?php } ?>
+		<?php } ?>
+	</actionbuttons>
+	<?php } ?>
+</page>

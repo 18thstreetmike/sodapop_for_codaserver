@@ -38,7 +38,7 @@
 											echo $row[$parts['field']];
 										}
 									}
-								?>">
+								?><?= $this->listState['viewItem'] ?>">
 							<?php } ?>
 							<?= $row[$heading['sortField']] ?>
 							<?php if (isset($heading['link'])) { ?>
@@ -60,4 +60,13 @@
 			<total><?= $this->data['totalRows'] ?></total>
 		</pagination>
 	</grid>
+	<?php if (count($this->actions) > 0) { ?>
+	<actionbuttons label="Actions">
+		<?php foreach ($this->actions as $action) { ?>
+			<?php foreach ($action as $link => $label) { ?>
+			<listbutton label="<?= $label ?>" link="<?= $this->baseUrl.'/'.$link ?>" />
+			<?php } ?>
+		<?php } ?>
+	</actionbuttons>
+	<?php } ?>
 </page>

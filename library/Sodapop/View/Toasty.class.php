@@ -560,11 +560,10 @@ class Toasty {
 
                 $attributes = '';
                 foreach ($domElement->attributes as $key => $value) {
-                    $attributes .= ' '.$value->name.'="'.$value->value.'"';
+                    $attributes .= ' '.$value->name.'="'.html_entity_decode($value->value, ENT_NOQUOTES).'"';
                 }
-
-                $html = '<'.$object->getName().$attributes.'>';
-                $domDoc = dom_import_simplexml($object);
+				$html = '<'.$object->getName().$attributes.'>';
+				$domDoc = dom_import_simplexml($object);
                 $domChildren = $domDoc->childNodes;
                 for ($i = 0; $i < $domChildren->length; $i++) {
                     $node = $domChildren->item($i);
@@ -576,6 +575,7 @@ class Toasty {
                     }
                 }
                 $html .= '</'.$object->getName().'>';
+				
                 return $html;
             }
         }

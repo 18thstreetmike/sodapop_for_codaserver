@@ -23,7 +23,7 @@ orders:
   list_filter_label: Search
   list_num_per_page: 20
   override_form: true
-  field_groups:
+  fields:
     - group: Customer Information
       fields:
         - name: customer_id
@@ -35,11 +35,11 @@ orders:
     - group: Status Information
       fields:
         - name: status
-          visualization: readonly
+          readonly: true
         - name: ship_date
-          visualization: readonly
+          readonly: true
         - name: cancel_date
-          visualization: readonly
+          readonly: true
         - name: notes
 order_items:
   list_fields:
@@ -52,11 +52,12 @@ order_items:
       calc: price * quantity
   override_form: true
   inline_form: true
-  field_groups:
+  fields:
     - group: Item Information
       fields:
         - name: product_id
           visualization: select
+          select: id, product_name
           where: status IN ('stocked', 'backordered')
           order: product_name ASC
           onchange: price.value = product_id.price
@@ -83,7 +84,7 @@ customers:
     - type: num_per_page
   list_filter_label: Search
   list_num_per_page: 20
-  field_groups:
+  fields:
     - group: Person Information
       fields:
         - name: first_name
@@ -112,7 +113,7 @@ products:
     - type: search
   list_filter_label: Search
   list_num_per_page: 20
-  field_groups:
+  fields:
     - group: Product Information
       fields:
         - name: product_name
