@@ -355,6 +355,7 @@ class Toasty {
 						$object = simplexml_load_string($file);
 					}
 
+					//echo $file;
 					//var_dump(libxml_get_errors());
 					// check to see if the resulting file is actually XML
                     if (!$object) {

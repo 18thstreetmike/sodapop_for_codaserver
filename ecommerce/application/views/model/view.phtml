@@ -1,7 +1,17 @@
 <page>
-	<h3><?= $this->tabTitle ?></h3>
-	<p><?= $this->tabDescription ?></p>
+	<form action="<?= $this->baseUrl ?>/<?= $this->controller ?>/update" method="post">
+	<h3><?= $this->actionName ?> <?= $this->entityName ?></h3>
+	<pre><?= var_export($this->form) ?></pre>
+	<?php foreach ($this->form['groups'] as $group) { ?>
+		<?php if ($group['showFieldset']) { ?>
+			<fieldset>
+				<?php if (isset($group['label'])) { ?><legend><?= $group['label'] ?></legend><?php } ?>
+		<?php } ?>
 	
+		<?php if ($group['showFieldset']) { ?>
+			</fieldset>
+		<?php } ?>
+	<?php } ?>
 	<?php if (count($this->actions) > 0) { ?>
 	<actionbuttons>
 		<?php foreach ($this->actions as $action) { ?>
@@ -11,4 +21,5 @@
 		<?php } ?>
 	</actionbuttons>
 	<?php } ?>
+	</form>
 </page>

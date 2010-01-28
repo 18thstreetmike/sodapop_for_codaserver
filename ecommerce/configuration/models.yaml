@@ -41,6 +41,10 @@ orders:
         - name: cancel_date
           readonly: true
         - name: notes
+    - group: Items
+      fieldset: false
+      fields:
+        - subtable: order_items
 order_items:
   list_fields:
     - name: product
@@ -51,6 +55,7 @@ order_items:
     - label: Line Total
       calc: price * quantity
   override_form: true
+  list_order_by: product_name
   inline_form: true
   fields:
     - group: Item Information

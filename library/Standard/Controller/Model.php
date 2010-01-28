@@ -43,23 +43,30 @@ class Standard_Controller_Model extends Sodapop_Controller {
 		$filterVars = $this->processListFilterRequest();
 		$this->view->listState = $this->buildListState($filterVars);
 		$this->view->filter = $this->buildFilter($filterVars);
-		$grid = $this->buildGrid($filterVars);
+		$grid = $this->buildGrid($filterVars, $this->model);
 		$this->view->grid = $grid;
-		$this->view->data = $this->getData($grid, $filterVars);
+		$this->view->data = $this->getData($grid, $filterVars, $this->model);
 		$this->view->actions = $this->getInitialActions();
 	}
 
-	public function viewAction($action = 'View') {
+	public function viewAction($actionName = 'View') {
 		$this->viewPath = 'model/view';
+		$id = isset($this->request->id) ? $this->request->id : isset($this->request->numeric[0]) ? $this->request->numeric[0] : null;
+		if (is_null($id)) {
+			$this->redirect($this->view->baseUrl.'/'.strtolower($this->modelClassname).'/index');
+		}
 		$filterVars = $this->processListFilterRequest();
 		$modelClassname = $this->modelClassname;
-		$model = new $modelClassname(isset($this->request->id) ? $this->request->id : $this->request->numeric[0]);
+		$model = new $modelClassname($id);
+		$this->view->actionName = ucwords($actionName);
+		$this->view->entityName = ucwords(str_replace('_', ' ', Sodapop_Inflector::camelCapsToUnderscores($modelClassname)));
+		$this->view->controller = $this->modelClassname;
 		$this->view->form = $this->getModelForm($model);
 
 	}
 
 	protected function processListFilterRequest(){
-		$retval = array('numPerPage' => (isset($this->application->models[Sodapop_Inflector::camelCapsToUnderscores(get_class($this->model), false)]) && isset($this->application->models[Sodapop_Inflector::camelCapsToUnderscores(get_class($this->model), false)]['list_num_per_page']) ? $this->application->models[Sodapop_Inflector::camelCapsToUnderscores(get_class($this->model), false)]['list_num_per_page'] : 10), 'filters' => array(), 'startIndex' => 0, 'orderBy' => 'id', 'orderDirection' => 'ASC');
+		$retval = array('numPerPage' => (isset($this->application->models[Sodapop_Inflector::camelCapsToUnderscores(get_class($this->model), false)]) && isset($this->application->models[Sodapop_Inflector::camelCapsToUnderscores(get_class($this->model), false)]['list_num_per_page']) ? $this->application->models[Sodapop_Inflector::camelCapsToUnderscores(get_class($this->model), false)]['list_num_per_page'] : 10), 'filters' => array(), 'startIndex' => 0, 'orderBy' => (isset($this->application->models[Sodapop_Inflector::camelCapsToUnderscores(get_class($this->model), false)]) && isset($this->application->models[Sodapop_Inflector::camelCapsToUnderscores(get_class($this->model), false)]['list_order_by']) ? $this->application->models[Sodapop_Inflector::camelCapsToUnderscores(get_class($this->model), false)]['list_order_by'] : 'id'), 'orderDirection' => 'ASC');
 		foreach($this->request->variables() as $key => $value) {
 			if (substr($key, 0, 7) == 'filter_') {
 				$keyName = substr($key, 7);
@@ -163,46 +170,46 @@ class Standard_Controller_Model extends Sodapop_Controller {
 		return $retval;
 	}
 
-	protected function buildGrid($filterVars) {
+	protected function buildGrid($filterVars, $model) {
 		$retval = array('headings' =>array());
-		if (isset($this->application->models[Sodapop_Inflector::camelCapsToUnderscores(get_class($this->model), false)]) && isset($this->application->models[Sodapop_Inflector::camelCapsToUnderscores(get_class($this->model), false)]['list_fields'])) {
-			$retval['headings'] = $this->processModelList($this->application->models[Sodapop_Inflector::camelCapsToUnderscores(get_class($this->model), false)]['list_fields'], $filterVars);
+		if (isset($this->application->models[Sodapop_Inflector::camelCapsToUnderscores(get_class($model), false)]) && isset($this->application->models[Sodapop_Inflector::camelCapsToUnderscores(get_class($model), false)]['list_fields'])) {
+			$retval['headings'] = $this->processModelList($this->application->models[Sodapop_Inflector::camelCapsToUnderscores(get_class($model), false)]['list_fields'], $filterVars, $model);
 		} else {
-			$modelList = array(array('name' => 'id', 'link' => '/'.$this->modelClassname.'/view/:id'));
-			$fields = $this->model->getFieldDefinitions();
+			$modelList = array(array('name' => 'id', 'link' => '/'.get_class($model).'/view/:id'));
+			$fields = $model->getFieldDefinitions();
 			foreach ($fields as $field) {
 				if (((isset($field['column_name']) && strtolower($field['column_name']) != 'id') || (isset($field['field_name']) && strtolower($field['field_name']) != 'id')) && strtolower($field['type_name']) != 'reference') {
 					$modelList[] = array('name' => isset($field['column_name']) ? strtolower($field['column_name']) : strtolower($field['field_name']));
 				}
 			}
-			if ($this->model instanceof Sodapop_Database_Form_Abstract) {
+			if ($model instanceof Sodapop_Database_Form_Abstract) {
 				$modelList[] = array('name' => 'status');
 			}
-			$retval['headings'] = $this->processModelList($modelList, $filterVars);
+			$retval['headings'] = $this->processModelList($modelList, $filterVars, $model);
 		}
 		return $retval;
 	}
 
-	protected function processModelList($modelList, $filterVars) {
+	protected function processModelList($modelList, $filterVars, $model) {
 		$retval = array();
 		foreach ($modelList as $listField) {
 			$heading = array('id' => $listField['name']);
-			if ($this->model instanceof Sodapop_Database_Form_Abstract && strtolower($listField['name']) == 'status') {
+			if ($model instanceof Sodapop_Database_Form_Abstract && strtolower($listField['name']) == 'status') {
 				$heading['label'] = (isset($listField['label']) ? $listField['label'] : 'Status');
 				if (!array_key_exists('model_statuses.adj_display_name', $this->selectedColumns)) {
-					$this->listSelectClause .= ($this->listSelectClause == '' ? ' ' : ', ').'model_statuses.adj_display_name AS '.$this->createAlias($this->modelClassname).'_status';
+					$this->listSelectClause .= ($this->listSelectClause == '' ? ' ' : ', ').'model_statuses.adj_display_name AS '.$this->createAlias(get_class($model)).'_status';
 					$this->selectedColumns['model_statuses.adj_display_name'] = 'STRING';
 				}
-				$heading['sortField'] = $this->createAlias($this->modelClassname).'_status';
+				$heading['sortField'] = $this->createAlias(get_class($model)).'_status';
 			} else {
-				$fieldDefinition = $this->model->getFieldDefinition(Sodapop_Inflector::underscoresToCamelCaps($listField['name'], true, false));
+				$fieldDefinition = $model->getFieldDefinition(Sodapop_Inflector::underscoresToCamelCaps($listField['name'], true, false));
 				if (!is_null($fieldDefinition)) {
 					$heading['label'] = (isset($listField['label']) ? $listField['label'] : $fieldDefinition['display_name']);
-					$heading['printExpression'] = array(array('type' => 'field', 'field' => $this->createAlias($this->modelClassname).'_'.$listField['name']));
-					$heading['sortField'] = $this->createAlias($this->modelClassname).'_'.$listField['name'];
-					if (!array_key_exists($this->createAlias($this->modelClassname).'.'.$listField['name'], $this->selectedColumns)) {
-						$this->listSelectClause .= ($this->listSelectClause == '' ? ' ' : ', ').$this->createAlias($this->modelClassname).'.'.$listField['name'].' AS '.$this->createAlias($this->modelClassname).'_'.$listField['name'];
-						$this->selectedColumns[$this->createAlias($this->modelClassname).'.'.$listField['name']] = $fieldDefinition['type_name'];
+					$heading['printExpression'] = array(array('type' => 'field', 'field' => $this->createAlias(get_class($model)).'_'.$listField['name']));
+					$heading['sortField'] = $this->createAlias(get_class($model)).'_'.$listField['name'];
+					if (!array_key_exists($this->createAlias(get_class($model)).'.'.$listField['name'], $this->selectedColumns)) {
+						$this->listSelectClause .= ($this->listSelectClause == '' ? ' ' : ', ').$this->createAlias(get_class($model)).'.'.$listField['name'].' AS '.$this->createAlias(get_class($model)).'_'.$listField['name'];
+						$this->selectedColumns[$this->createAlias(get_class($model)).'.'.$listField['name']] = $fieldDefinition['type_name'];
 					}
 				} else {
 					$heading['label'] = (isset($listField['label']) ? $listField['label'] : 'Column '.(count($retval) + 1));
@@ -215,17 +222,17 @@ class Standard_Controller_Model extends Sodapop_Controller {
 								$heading['printExpression'][] = array('type' => 'text', 'text' => substr($concatPart,1, strlen($concatPart) - 2));
 							} else {
 								$moreParts = explode('.', $concatPart);
-								$partDefinition = $this->model->getFieldDefinition(Sodapop_Inflector::underscoresToCamelCaps($moreParts[0], true, false));
+								$partDefinition = $model->getFieldDefinition(Sodapop_Inflector::underscoresToCamelCaps($moreParts[0], true, false));
 								if (!is_null($partDefinition)) {
 									if (!isset($moreParts[1]) || $partDefinition['type_name'] != 'REFERENCE') {
 										$columnName = trim($moreParts[0]);
-										if (!array_key_exists($this->createAlias($this->modelClassname).'.'.$columnName, $this->selectedColumns)) {
-											$this->listSelectClause .= ($this->listSelectClause == '' ? ' ' : ', ').$this->createAlias($this->modelClassname).'.'.$columnName.' AS '.$this->createAlias($this->modelClassname).'_'.$columnName;
-											$this->selectedColumns[$this->createAlias($this->modelClassname).'.'.$columnName] = $partDefinition['type_name'];
+										if (!array_key_exists($this->createAlias(get_class($model)).'.'.$columnName, $this->selectedColumns)) {
+											$this->listSelectClause .= ($this->listSelectClause == '' ? ' ' : ', ').$this->createAlias(get_class($model)).'.'.$columnName.' AS '.$this->createAlias(get_class($model)).'_'.$columnName;
+											$this->selectedColumns[$this->createAlias(get_class($model)).'.'.$columnName] = $partDefinition['type_name'];
 										}
-										$heading['printExpression'][] = array('type' => 'field', 'field' => Sodapop_Inflector::camelCapsToUnderscores($this->modelClassname, true).'_'.$columnName);
+										$heading['printExpression'][] = array('type' => 'field', 'field' => Sodapop_Inflector::camelCapsToUnderscores(get_class($model), true).'_'.$columnName);
 										if (!isset($heading['sortField'])) {
-											$heading['sortField'] = $this->createAlias($this->modelClassname).'_'.$columnName;
+											$heading['sortField'] = $this->createAlias(get_class($model)).'_'.$columnName;
 										}
 									} else {
 										$childTableClassname = Sodapop_Inflector::underscoresToCamelCaps(strtolower($partDefinition['ref_table_name']), false);
@@ -237,7 +244,7 @@ class Standard_Controller_Model extends Sodapop_Controller {
 												$this->selectedColumns[$moreParts[0].'.'.$moreParts[1]] = $childPartsDefinition['type_name'];
 											}
 											if (!in_array($moreParts[0], $this->joinedTables)) {
-												$this->listFromClause .= ' LEFT OUTER JOIN '.strtolower($partDefinition['ref_table_name']).' AS '.$moreParts[0].' ON '.$moreParts[0].'.id = '.$this->createAlias($this->modelClassname).'.'.$moreParts[0].' ';
+												$this->listFromClause .= ' LEFT OUTER JOIN '.strtolower($partDefinition['ref_table_name']).' AS '.$moreParts[0].' ON '.$moreParts[0].'.id = '.$this->createAlias(get_class($model)).'.'.$moreParts[0].' ';
 												$this->joinedTables[] = $moreParts[0];
 											}
 											$heading['printExpression'][] = array('type' => 'field', 'field' => $moreParts[0].'_'.$moreParts[1]);
@@ -257,7 +264,7 @@ class Standard_Controller_Model extends Sodapop_Controller {
 				}
 			}
 			if (isset($listField['link']) && $listField['link']) {
-				$heading['link'] = $this->processLink($listField['link']);
+				$heading['link'] = $this->processLink($listField['link'], $model);
 			}
 			$heading['orderBy'] = $filterVars['orderBy'] == $heading['sortField'];
 			$heading['orderDirection'] = $filterVars['orderDirection'];
@@ -266,7 +273,7 @@ class Standard_Controller_Model extends Sodapop_Controller {
 		return $retval;
 	}
 
-	protected function processLink($link) {
+	protected function processLink($link, $model) {
 		$retval = array();
 		$currentTextNode = '';
 		$linkParts = explode('/', $link);
@@ -276,15 +283,15 @@ class Standard_Controller_Model extends Sodapop_Controller {
 				$retval[] = array('type' => 'text', 'text' => $currentTextNode.'/');
 				$currentTextNode = '';
 				$fieldParts = explode('.', substr($part, 1));
-				$partDefinition = $this->model->getFieldDefinition(Sodapop_Inflector::underscoresToCamelCaps($fieldParts[0], true, false));
+				$partDefinition = $model->getFieldDefinition(Sodapop_Inflector::underscoresToCamelCaps($fieldParts[0], true, false));
 				if (!is_null($partDefinition)) {
 					if (!isset($fieldParts[1]) || $partDefinition['type_name'] != 'REFERENCE') {
 						$columnName = trim($fieldParts[0]);
-						if (!array_key_exists($this->createAlias($this->modelClassname).'.'.$columnName, $this->selectedColumns)) {
-							$this->listSelectClause .= ($this->listSelectClause == '' ? ' ' : ', ').$this->createAlias($this->modelClassname).'.'.$columnName.' AS '.$this->createAlias($this->modelClassname).'_'.$columnName;
-							$this->selectedColumns[Sodapop_Inflector::camelCapsToUnderscores($this->modelClassname, true).'.'.$columnName] = $partDefinition['type_name'];
+						if (!array_key_exists($this->createAlias(get_class($model)).'.'.$columnName, $this->selectedColumns)) {
+							$this->listSelectClause .= ($this->listSelectClause == '' ? ' ' : ', ').$this->createAlias(get_class($model)).'.'.$columnName.' AS '.$this->createAlias(get_class($model)).'_'.$columnName;
+							$this->selectedColumns[$this->createAlias(get_class($model)).'.'.$columnName] = $partDefinition['type_name'];
 						}
-						$retval[] = array('type' => 'field', 'field' => $this->createAlias($this->modelClassname).'_'.$columnName);
+						$retval[] = array('type' => 'field', 'field' => $this->createAlias(get_class($model)).'_'.$columnName);
 					} else {
 						$childTableClassname = Sodapop_Inflector::underscoresToCamelCaps(strtolower($partDefinition['ref_table_name']), false);
 						$childObject = new $childTableClassname();
@@ -295,7 +302,7 @@ class Standard_Controller_Model extends Sodapop_Controller {
 								$this->selectedColumns[$fieldParts[0].'.'.$fieldParts[1]] = $childPartsDefinition['type_name'];
 							}
 							if (!in_array($fieldParts[0], $this->joinedTables)) {
-								$this->listFromClause .= ' LEFT OUTER JOIN '.strtolower($partDefinition['ref_table_name']).' AS '.$fieldParts[0].' ON '.$fieldParts[0].'.id = '.$this->createAlias($this->modelClassname).'.'.$fieldParts[0].' ';
+								$this->listFromClause .= ' LEFT OUTER JOIN '.strtolower($partDefinition['ref_table_name']).' AS '.$fieldParts[0].' ON '.$fieldParts[0].'.id = '.$this->createAlias(get_class($model)).'.'.$fieldParts[0].' ';
 								$this->joinedTables[] = $fieldParts[0];
 							}
 							$retval[] = array('type' => 'field', 'field' => $fieldParts[0].'_'.$fieldParts[1]);
@@ -312,8 +319,11 @@ class Standard_Controller_Model extends Sodapop_Controller {
 		return $retval;
 	}
 
-	protected function getData($grid, $filterVars) {
+	protected function getData($grid, $filterVars, $model, $parentTableId = null) {
 		$whereClause = '';
+		if (!is_null($parentTableId)) {
+			$whereClause .= ' WHERE '.$this->createAlias(get_class($model)).".parent_table_id = '".$parentTableId."' ";
+		}
 		if (count($filterVars['filters']) > 0) {
 			foreach($filterVars['filters'] as $key => $filter){
 				if (trim($filter) != '') {
@@ -338,14 +348,14 @@ class Standard_Controller_Model extends Sodapop_Controller {
 								$search .= $column ." = '".$filter."' ";
 							}
 						}
-						foreach ($this->model->getFieldDefinitions() as $fieldName => $fieldDefinition) {
+						foreach ($model->getFieldDefinitions() as $fieldName => $fieldDefinition) {
 							$typeName = $fieldDefinition['type_name'];
-							if (!in_array(Sodapop_Inflector::camelCapsToUnderscores($this->modelClassname).'.'.Sodapop_Inflector::camelCapsToUnderscores($fieldName), $this->selectedColumns)) {
+							if (!in_array(Sodapop_Inflector::camelCapsToUnderscores(get_class($model)).'.'.Sodapop_Inflector::camelCapsToUnderscores($fieldName), $this->selectedColumns)) {
 								if ($typeName != 'INTEGER' && $typeName != 'FLOAT' && $typeName != 'REFERENCE' && $typeName != 'TIMESTAMP') {
 									if ($search != '( ') {
 										$search .= ' OR ';
 									}
-									$search .= Sodapop_Inflector::camelCapsToUnderscores($this->modelClassname).'.'.Sodapop_Inflector::camelCapsToUnderscores($fieldName) ." LIKE '%".str_replace("'", "''", $filter)."%' ";
+									$search .= Sodapop_Inflector::camelCapsToUnderscores(get_class($model)).'.'.Sodapop_Inflector::camelCapsToUnderscores($fieldName) ." LIKE '%".str_replace("'", "''", $filter)."%' ";
 								} else if (is_numeric($filter) && ($typeName == 'INTEGER' || $typeName == 'FLOAT' || $typeName == 'REFERENCE')) {
 									if ($search != '( ') {
 										$search .= ' OR ';
@@ -367,13 +377,13 @@ class Standard_Controller_Model extends Sodapop_Controller {
 		}
 
 		$retval = array('totalRows' => 0, 'numPerPage' => $filterVars['numPerPage'], 'startIndex' => $filterVars['startIndex'], 'data' => array());
-		$countSelectStatement = 'SELECT count('.$this->createAlias($this->modelClassname).'.id) FROM '.$this->listFromClause.' '.$whereClause;
+		$countSelectStatement = 'SELECT count('.$this->createAlias(get_class($model)).'.id) FROM '.$this->listFromClause.' '.$whereClause;
 		$countResult = $this->user->connection->runQuery($countSelectStatement);
 		foreach ($countResult['data'] as $row) {
 			$retval['totalRows'] = $row[0];
 		}
 
-		$orderBy = ' ORDER BY '.$this->createAlias($this->modelClassname).'.id '.$filterVars['orderDirection'];
+		$orderBy = ' ORDER BY '.$this->createAlias(get_class($model)).'.id '.$filterVars['orderDirection'];
 		foreach ($grid['headings'] as $gridValue) {
 			if ($gridValue['id'] == $filterVars['orderBy']) {
 				$orderBy = ' ORDER BY '.$gridValue['sortField'].' '.$filterVars['orderDirection'];
@@ -401,7 +411,7 @@ class Standard_Controller_Model extends Sodapop_Controller {
 		if (isset($this->application->models[Sodapop_Inflector::camelCapsToUnderscores(get_class($model), false)]) && isset($this->application->models[Sodapop_Inflector::camelCapsToUnderscores(get_class($model), false)]['fields'])) {
 			foreach ($this->application->models[Sodapop_Inflector::camelCapsToUnderscores(get_class($model), false)]['fields'] as $groupTabItem) {
 				if (isset($groupTabItem['group'])) {
-					$retval['groups'][$groupTabItem['group']] = $this->parseGroupInfo(isset($groupTabItem['fields']) ? $groupTabItem['fields'] : array(), $model);
+					$retval['groups'][] = array('label' => $groupTabItem['group'], 'showFieldset' => (isset($groupTabItem['fieldset']) && $groupTabItem['fieldset'] == 'false' ? false : true), 'fields' => $this->parseGroupInfo(isset($groupTabItem['fields']) ? $groupTabItem['fields'] : array(), $model));
 				} else if (isset($groupTabItem['tab'])) {
 					$retval['tabs'][$groupTabItem['tab']] = array();
 					foreach ($groupTabItem['groups'] as $groupItem) {
@@ -410,48 +420,18 @@ class Standard_Controller_Model extends Sodapop_Controller {
 				}
 			}
 		} else {
-			$retval['groups']['Information'] = array();
+			$retval['groups'][] = array('label' => 'Information', 'showFieldset' => true, 'fields' => array());
 			$fieldDefinitions = $model->getFieldDefinitions();
+			$invalidFields = array('id', 'modDate', 'createDate', 'modUserName', 'createUserName', 'activeFlag');
 			foreach ($fieldDefinitions as $fieldName => $fieldDefinition) {
-				$fieldArray['label'] = $fieldDefinition['display_name'];
-				$fieldArray['default'] = isset($model->$fieldName) ? $model->$fieldName : $fieldDefinition['default_value'];
-				$fieldArray['arrayFlag'] = $fieldDefinition['array_flag'] == '1';
-				if ($fieldDefinition['type_name'] == 'REFERENCE') {
-					$referenceModelClassname = Sodapop_Inflector::underscoresToCamelCaps(strtolower($fieldDefinition['ref_table_name']), false);
-					$referenceModel = new $referenceModeClassName();
-					$referenceFieldDefinitions = $referenceModel->getFieldDefinitions();
-					$fieldArray['type'] = 'select';
-					$optionQuery = (isset($field['query']) ? $field['query'] : 'SELECT '.(isset($field['select']) ? $field['select'] : 'id, '.strtolower($referenceFieldDefinitions['column_name'])).' FROM '.strtolower($fieldDefinition['ref_table_name']).' '.(isset($field['where']) ? 'WHERE '.$field['where'] : '').' '.(isset($field['order']) ? 'ORDER BY '.$field['order'] : ''));
-					$optionsResult = $this->user->connection->runQuery($optionQuery);
-					$fieldArray['options'] = array();
-					foreach ($optionsResult['data'] as $optionRow) {
-						$fieldArray['options'][$optionRow[0]] = $optionRow[1];
-					}
-				} else {
-					$fieldArray['type'] = $fieldDefinition['type_name'];
-				}
-			}
-		}
-		//echo 'Main :'.var_export($retval);
-		return $retval;
-	}
-
-	protected function parseGroupInfo($fields, $model) {
-		$fieldArray = array();
-		if ($fields) {
-			foreach ($fields as $field) {
-				$fieldName = $field['name'];
-				$fieldDefinition = $model->getFieldDefinition(Sodapop_Inflector::underscoresToCamelCaps($fieldName, true, false));
-				$fieldArray['label'] = isset($field['label']) ? $field['label'] : $fieldDefinition['display_name'];
-				$fieldArray['default'] = isset($model->$fieldName) ? $model->$fieldName : $fieldDefinition['default_value'];
-				$fieldArray['arrayFlag'] = $fieldDefinition['array_flag'] == '1';
-				if ($fieldDefinition['type_name'] == 'REFERENCE') {
-					$referenceModelClassname = Sodapop_Inflector::underscoresToCamelCaps(strtolower($fieldDefinition['ref_table_name']), false);
-					$referenceModel = new $referenceModelClassname();
-					if ($field['visualization'] == 'editor') {
-						$fieldArray['type'] = 'form';
-						$fieldArray['form'] = $this->getModelForm($referenceModel);
-					} else {
+				if (!in_array($fieldName,$invalidFields )) {
+					$fieldArray = array();
+					$fieldArray['label'] = $fieldDefinition['display_name'];
+					$fieldArray['default'] = isset($model->$fieldName) ? $model->$fieldName : $fieldDefinition['default_value'];
+					$fieldArray['arrayFlag'] = $fieldDefinition['array_flag'] == '1';
+					if ($fieldDefinition['type_name'] == 'REFERENCE') {
+						$referenceModelClassname = Sodapop_Inflector::underscoresToCamelCaps(strtolower($fieldDefinition['ref_table_name']), false);
+						$referenceModel = new $referenceModeClassName();
 						$referenceFieldDefinitions = $referenceModel->getFieldDefinitions();
 						$fieldArray['type'] = 'select';
 						$optionQuery = (isset($field['query']) ? $field['query'] : 'SELECT '.(isset($field['select']) ? $field['select'] : 'id, '.strtolower($referenceFieldDefinitions['column_name'])).' FROM '.strtolower($fieldDefinition['ref_table_name']).' '.(isset($field['where']) ? 'WHERE '.$field['where'] : '').' '.(isset($field['order']) ? 'ORDER BY '.$field['order'] : ''));
@@ -460,13 +440,61 @@ class Standard_Controller_Model extends Sodapop_Controller {
 						foreach ($optionsResult['data'] as $optionRow) {
 							$fieldArray['options'][$optionRow[0]] = $optionRow[1];
 						}
+					} else {
+						$fieldArray['type'] = $fieldDefinition['type_name'];
 					}
-				} else {
-					$fieldArray['type'] = $fieldDefinition['type_name'];
-				}			
+					$retval['groups'][0]['fields'][] = $fieldArray;
+				}
 			}
 		}
-		return $fieldArray;
+		//echo 'Main :'.var_export($retval);
+		return $retval;
+	}
+
+	protected function parseGroupInfo($fields, $model) {
+		$retval = array();
+		if ($fields) {
+			foreach ($fields as $field) {
+				$fieldArray = array();
+				if (isset($field['subtable'])) {
+					$subtableModelClassname = Sodapop_Inflector::underscoresToCamelCaps($field['subtable'], false);
+					$subtableModel = new $subtableModelClassname;
+					$filterVars = array('numPerPage' => 1000, 'filters' => array(), 'startIndex' => 0, 'orderBy' => (isset($this->application->models[$field['subtable']]) && isset($this->application->models[$field['subtable']]['list_order_by']) ? $this->application->models[$field['subtable']]['list_order_by'] : 'id'), 'orderDirection' => 'ASC');
+
+					$fieldArray['subtable'] = true;
+					$fieldArray['grid'] = $this->buildGrid($filterVars, $subtableModel);
+					$fieldArray['data'] = $this->getData($fieldArray['grid'], $filterVars, $subtableModel, $model->id);
+				} else {
+					$fieldName = $field['name'];
+					$fieldDefinition = $model->getFieldDefinition(Sodapop_Inflector::underscoresToCamelCaps($fieldName, true, false));
+					$fieldArray['subtable'] = false;
+					$fieldArray['label'] = isset($field['label']) ? $field['label'] : $fieldDefinition['display_name'];
+					$fieldArray['default'] = isset($model->$fieldName) ? $model->$fieldName : $fieldDefinition['default_value'];
+					$fieldArray['arrayFlag'] = $fieldDefinition['array_flag'] == '1';
+					if ($fieldDefinition['type_name'] == 'REFERENCE') {
+						$referenceModelClassname = Sodapop_Inflector::underscoresToCamelCaps(strtolower($fieldDefinition['ref_table_name']), false);
+						$referenceModel = new $referenceModelClassname();
+						if ($field['visualization'] == 'editor') {
+							$fieldArray['type'] = 'form';
+							$fieldArray['form'] = $this->getModelForm($referenceModel);
+						} else {
+							$referenceFieldDefinitions = $referenceModel->getFieldDefinitions();
+							$fieldArray['type'] = 'select';
+							$optionQuery = (isset($field['query']) ? $field['query'] : 'SELECT '.(isset($field['select']) ? $field['select'] : 'id, '.strtolower($referenceFieldDefinitions['column_name'])).' FROM '.strtolower($fieldDefinition['ref_table_name']).' '.(isset($field['where']) ? 'WHERE '.$field['where'] : '').' '.(isset($field['order']) ? 'ORDER BY '.$field['order'] : ''));
+							$optionsResult = $this->user->connection->runQuery($optionQuery);
+							$fieldArray['options'] = array();
+							foreach ($optionsResult['data'] as $optionRow) {
+								$fieldArray['options'][$optionRow[0]] = $optionRow[1];
+							}
+						}
+					} else {
+						$fieldArray['type'] = $fieldDefinition['type_name'];
+					}
+				}
+				$retval[] = $fieldArray;
+			}
+		}
+		return $retval;
 	}
 
 	protected function getInitialActions() {
