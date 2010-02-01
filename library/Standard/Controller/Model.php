@@ -61,8 +61,10 @@ class Standard_Controller_Model extends Sodapop_Controller {
 		$this->view->actionName = ucwords($actionName);
 		$this->view->entityName = ucwords(str_replace('_', ' ', Sodapop_Inflector::camelCapsToUnderscores($modelClassname)));
 		$this->view->controller = $this->modelClassname;
-		$this->view->form = $this->getModelForm($model);
-
+		$form = $this->getModelForm(&$model);
+		$this->view->form = $form;
+		$this->view->renderedForm = $this->renderForm($form);
+		$this->view->actions = $this->getNextActions($model);
 	}
 
 	protected function processListFilterRequest(){
@@ -426,8 +428,8 @@ class Standard_Controller_Model extends Sodapop_Controller {
 			foreach ($fieldDefinitions as $fieldName => $fieldDefinition) {
 				if (!in_array($fieldName,$invalidFields )) {
 					$fieldArray = array();
+					$fieldArray['id'] = $this->createAlias(get_class($model)).'_'.strtolower($fieldDefinition['column_name']);
 					$fieldArray['label'] = $fieldDefinition['display_name'];
-					$fieldArray['default'] = isset($model->$fieldName) ? $model->$fieldName : $fieldDefinition['default_value'];
 					$fieldArray['arrayFlag'] = $fieldDefinition['array_flag'] == '1';
 					if ($fieldDefinition['type_name'] == 'REFERENCE') {
 						$referenceModelClassname = Sodapop_Inflector::underscoresToCamelCaps(strtolower($fieldDefinition['ref_table_name']), false);
@@ -440,8 +442,12 @@ class Standard_Controller_Model extends Sodapop_Controller {
 						foreach ($optionsResult['data'] as $optionRow) {
 							$fieldArray['options'][$optionRow[0]] = $optionRow[1];
 						}
+						$fieldArray['default'] = $model->$fieldName->id ? $model->$fieldName->id : $fieldDefinition['default_value'];
+
 					} else {
 						$fieldArray['type'] = $fieldDefinition['type_name'];
+						$fieldArray['default'] = $model->$fieldName ? $model->$fieldName : $fieldDefinition['default_value'];
+
 					}
 					$retval['groups'][0]['fields'][] = $fieldArray;
 				}
@@ -465,15 +471,15 @@ class Standard_Controller_Model extends Sodapop_Controller {
 					$fieldArray['grid'] = $this->buildGrid($filterVars, $subtableModel);
 					$fieldArray['data'] = $this->getData($fieldArray['grid'], $filterVars, $subtableModel, $model->id);
 				} else {
-					$fieldName = $field['name'];
-					$fieldDefinition = $model->getFieldDefinition(Sodapop_Inflector::underscoresToCamelCaps($fieldName, true, false));
+					$fieldName = Sodapop_Inflector::underscoresToCamelCaps($field['name'], true, false);
+					$fieldDefinition = $model->getFieldDefinition($fieldName);
+					$fieldArray['id'] = $this->createAlias(get_class($model)).'_'.$field['name'];
 					$fieldArray['subtable'] = false;
 					$fieldArray['label'] = isset($field['label']) ? $field['label'] : $fieldDefinition['display_name'];
-					$fieldArray['default'] = isset($model->$fieldName) ? $model->$fieldName : $fieldDefinition['default_value'];
 					$fieldArray['arrayFlag'] = $fieldDefinition['array_flag'] == '1';
 					if ($fieldDefinition['type_name'] == 'REFERENCE') {
 						$referenceModelClassname = Sodapop_Inflector::underscoresToCamelCaps(strtolower($fieldDefinition['ref_table_name']), false);
-						$referenceModel = new $referenceModelClassname();
+						$referenceModel = new $referenceModelClassname($model->$fieldName->id ? $model->$fieldName->id : $fieldDefinition['default_value']);
 						if ($field['visualization'] == 'editor') {
 							$fieldArray['type'] = 'form';
 							$fieldArray['form'] = $this->getModelForm($referenceModel);
@@ -487,13 +493,43 @@ class Standard_Controller_Model extends Sodapop_Controller {
 								$fieldArray['options'][$optionRow[0]] = $optionRow[1];
 							}
 						}
+						$fieldArray['default'] = $model->$fieldName->id ? $model->$fieldName->id : $fieldDefinition['default_value'];
 					} else {
 						$fieldArray['type'] = $fieldDefinition['type_name'];
+						$fieldArray['default'] = $model->$fieldName ? $model->$fieldName : $fieldDefinition['default_value'];
+					
 					}
 				}
 				$retval[] = $fieldArray;
 			}
 		}
+		return $retval;
+	}
+
+	protected function renderForm($form, $namespace = '') {
+		$retval = '';
+		foreach ($form['groups'] as $group) {
+			$retval .= $this->renderFormGroup($group, count($form['groups']) == 1 ? false : true, $namespace);
+		}
+		foreach ($form['tabs'] as $tab) {
+			
+		}
+		return $retval;
+	}
+
+	protected function renderFormGroup($group, $showFieldset = true, $namespace = '') {
+		$retval = '';
+		$retval .= '<fieldgroup label="'.htmlentities($group['label']).'" border="'.($showFieldset ? 'true' : 'false').'">';
+		foreach ($group['fields'] as $field) {
+			if (isset($field['subtable']) && $field['subtable']) {
+				$retval .= $this->renderSubtable();
+			} else if ($field['type'] == 'form') {
+				$retval .= '<hidden id="'.$field['id'].'" value="'.$field['default'].'" />'.$this->renderForm($field['form'], $field['id']);
+			} else {
+				$retval .= '<'.strtolower($field['type']).'input id="'.($namespace != '' ? $namespace.'_' : '').$field['id'].'" label="'.$field['label'].'" array="'.($field['arrayFlag'] ? 'true' : 'false').'" default="'.htmlentities(serialize($field['default'])).'" />';
+			}
+		}
+		$retval .= '</fieldgroup>';
 		return $retval;
 	}
 
@@ -508,6 +544,25 @@ class Standard_Controller_Model extends Sodapop_Controller {
 		} else {
 			if ($this->user->hasTablePermission(strtolower(Sodapop_Inflector::camelCapsToUnderscores($this->modelClassname, false)), 'INSERT')) {
 				$retval[] = array(strtolower(substr($this->modelClassname, 0, 1)).substr($this->modelClassname, 1).'/insert' => 'Insert');
+			}
+		}
+		return $retval;
+	}
+
+	protected function getNextActions($model) {
+		$retval = array();
+		if ($model instanceof Sodapop_Database_Form_Abstract) {
+			foreach ($this->model->getFormStatuses() as $statusId => $status) {
+				if ($status['initial_flag'] == 1 && $this->user->hasFormPermission(strtolower(Sodapop_Inflector::camelCapsToUnderscores($this->modelClassname, false)), $status['adjective'], 'CALL' )) {
+					$retval[] = array(strtolower(substr($this->modelClassname, 0, 1)).substr($this->modelClassname, 1).'/'.strtolower($status['verb']) => $status['display_verb']);
+				}
+			}
+		} else {
+			if ($model->id && $this->user->hasTablePermission(strtolower(Sodapop_Inflector::camelCapsToUnderscores($this->modelClassname, false)), 'UPDATE')) {
+				$retval[] = array(strtolower(substr($this->modelClassname, 0, 1)).substr($this->modelClassname, 1).'/update' => 'Update');
+			}
+			if ($model->id && $this->user->hasTablePermission(strtolower(Sodapop_Inflector::camelCapsToUnderscores($this->modelClassname, false)), 'DELETE')) {
+				$retval[] = array(strtolower(substr($this->modelClassname, 0, 1)).substr($this->modelClassname, 1).'/delete' => 'Delete');
 			}
 		}
 		return $retval;

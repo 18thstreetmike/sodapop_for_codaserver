@@ -134,7 +134,20 @@ div.screen-filter-item select {
     border: 1px #777 solid;
 }
 
-fieldset.action-buttons {
+.action-buttons {
+	margin-top: 4px;
+	border: 1px #777 solid;
+	width: 98%;
+	padding: 0 1% 1% 1%;
+	background-color: #EEE;
+}
+
+.action-buttons input {
+	float: left;
+	margin-right: 1em;
+}
+
+.action-buttons {
 	border: 1px #777 solid;
 	width: 98%;
 	padding: 0 1% 1% 1%;
@@ -253,4 +266,25 @@ div.error-box {
     padding: 5px;
     color: black;
     background-color: #FFDFE0;
+}
+
+fieldset.field-group {
+	border: 1px #999 solid;
+	width: 98%;
+	padding: 0 1% 1% 1%;
+}
+
+fieldset.field-group legend {
+	font-size: 10pt;
+	color: #999;
+	padding: 5px;
+	margin-left: .5em;
+}
+
+div.field-container-div {
+	margin: 3px 0;
+}
+
+div.field-container-div label {
+	display: block;
 }

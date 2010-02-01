@@ -39,11 +39,11 @@ abstract class Sodapop_Database_Table_Abstract {
 			return explode('<sodapop_array_item_delim>', str_replace("','", '<sodapop_array_item_delim>', substr($this->fields[$name], 2, strlen($this->fields[$name]) - 4)));
 		} else if (array_key_exists($name, $this->fieldDefinitions) && $this->fieldDefinitions[$name]['type_name'] == 'REFERENCE' && $this->fieldDefinitions[$name]['array_flag'] == '0' && isset($this->fields[$name])) {
 			// this is a regular reference field
-			$className = Sodapop_Inflector::underscoresToCamelCaps($this->fieldDefinitions[$name]['ref_table_name'], false);
+			$className = Sodapop_Inflector::underscoresToCamelCaps(strtolower($this->fieldDefinitions[$name]['ref_table_name']), false);
 			return new $className($this->fields[$name]);
 		} else if (array_key_exists($name, $this->fieldDefinitions) && $this->fieldDefinitions[$name]['type_name'] == 'REFERENCE' && $this->fieldDefinitions[$name]['array_flag'] == '1' && isset($this->fields[$name])) {
 			// this is a regular reference array field
-			$className = Sodapop_Inflector::underscoresToCamelCaps($this->fieldDefinitions[$name]['ref_table_name'], false);
+			$className = Sodapop_Inflector::underscoresToCamelCaps(strtolower($this->fieldDefinitions[$name]['ref_table_name']), false);
 			$ids = explode('<sodapop_array_item_delim>', str_replace("','", '<sodapop_array_item_delim>', substr($this->fields[$name], 2, strlen($this->fields[$name]) - 4)));
 			$retval = array();
 			foreach ($ids as $item) {

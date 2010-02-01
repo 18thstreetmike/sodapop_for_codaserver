@@ -127,4 +127,11 @@ products:
         - name: image_url
         - name: expected_stock_date
 addresses:
-  override_form: false
+  fields:
+    - group: Information
+      fields:
+        - name: address
+        - name: address_cont
+        - name: city
+        - name: state_prov
+        - name: country

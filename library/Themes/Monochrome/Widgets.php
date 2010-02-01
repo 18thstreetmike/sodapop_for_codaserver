@@ -6,11 +6,11 @@
  */
 class Themes_Monochrome_Widgets {
 	public static function actionbuttonsContainer($args = array(), $innerContent = '') {
-		if ($args['label']) {
+		if (isset($args['label'])) {
 			$label = $args['label'];
-			return '<fieldset '.Themes_Monochrome_Widgets::standardArgs($args, 'action-buttons', array('label')).'><legend>'.$label.'</legend>'.$innerContent.'</fieldset>';
+			return '<fieldset '.Themes_Monochrome_Widgets::standardArgs($args, 'action-buttons', array('label')).'><legend>'.$label.'</legend>'.$innerContent.'<br style="clear: both;" /></fieldset>';
 		} else {
-			return '<div '.Themes_Monochrome_Widgets::standardArgs($args, 'action-buttons').'>'.$innerContent.'</div>';
+			return '<div '.Themes_Monochrome_Widgets::standardArgs($args, 'action-buttons').'>'.$innerContent.'<br style="clear: both;" /></div>';
 		}
 	}
 
@@ -26,6 +26,10 @@ class Themes_Monochrome_Widgets {
 		return '<div class="error-box">'.$innerContent.'</div>';
 	}
 
+	public static function fieldGroupContainer($args = array(), $innerContent = '') {
+		return (!isset($args['border']) || $args['border'] == 'false' ? '<div '.Themes_Monochrome_Widgets::standardArgs($args, 'field-group', array('border', 'label')).'>' : '<fieldset '.Themes_Monochrome_Widgets::standardArgs($args, 'field-group', array('border', 'label')).'><legend>'.html_entity_decode($args['label']).'</legend>').$innerContent.(!isset($args['border']) || $args['border'] == 'false' ? '</div>' : '</fieldset>');
+	}
+	
 	public static function filterContainer($args = array(), $innerContent = '') {
 		$button = 'Update';
 		if (isset($args['button'])) {
@@ -155,6 +159,21 @@ class Themes_Monochrome_Widgets {
 
 	public static function screenContainer($args = array(), $innerContent = '') {
 		return '<body '.Themes_Monochrome_Widgets::standardArgs($args, '').'>'.$innerContent.'</body>';
+	}
+
+	public static function stringinputTag($args = array()) {
+		$id = isset($args['id']) ? $args['id'] : 'field_'.time();
+		$array = isset($args['array']) && $args['array'] == 'true' ? true : false;
+		$retval = '<div class="field-container-div">';
+		if (isset($args['label'])) {
+			$retval .= '<label for="'.$id.($array ? '[]' : '').'">'.$args['label'].'</label>';
+		}
+		if ($array) {
+			
+		} else {
+			$retval .= '<input type="text" name="'.$id.'" id="'.$id.'" maxlength="255" '.Themes_Monochrome_Widgets::standardArgs($args, 'field-string', array('id', 'label', 'default', 'array')).' value="'.unserialize($args['default']).'" />';
+		}
+		return $retval.'</div>';
 	}
 
 	public static function stylesheetTag($args = array()) {
