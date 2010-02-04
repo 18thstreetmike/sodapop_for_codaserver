@@ -32,6 +32,8 @@ CREATE TABLE customers DISPLAYED AS 'Customers' IN APPLICATION ecommerce WITH SO
 	shipping_address_id REFERENCE TO addresses DISPLAYED AS 'Shipping Address' NOT NULL 
 );
 
+ALTER TABLE customers ADD COLUMN nicknames STRING ARRAY DISPLAYED AS 'Nicknames' NOT NULL;
+
 CREATE FORM products DISPLAYED AS 'Products' IN APPLICATION ecommerce (
 	product_name STRING DISPLAYED AS 'Product Name',
 	description LONGSTRING DISPLAYED AS 'Description',

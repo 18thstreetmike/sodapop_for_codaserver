@@ -23,6 +23,7 @@ class Standard_Controller_Model extends Sodapop_Controller {
 			$this->joinedTables[] = 'model_statuses';
 		}
 		$this->view->stylesheets = array('/styles/style.css');
+		$this->view->javascripts = array('/scripts/standard.js', '/scripts/jquery-1.4.1.min.js');
 		$this->view->currentTab = strtolower(substr($modelClassname, 0, 1)).substr($modelClassname, 1);
 		
 	}
@@ -63,8 +64,9 @@ class Standard_Controller_Model extends Sodapop_Controller {
 		$this->view->controller = $this->modelClassname;
 		$form = $this->getModelForm(&$model);
 		$this->view->form = $form;
-		$this->view->renderedForm = $this->renderForm($form);
-		$this->view->actions = $this->getNextActions($model);
+		$actions = $this->getNextActions($model);
+		$this->view->renderedForm = $this->renderForm($form, '', count($actions) == 0);
+		$this->view->actions = $actions;
 	}
 
 	protected function processListFilterRequest(){
@@ -506,10 +508,10 @@ class Standard_Controller_Model extends Sodapop_Controller {
 		return $retval;
 	}
 
-	protected function renderForm($form, $namespace = '') {
+	protected function renderForm($form, $namespace = '', $readonly = false) {
 		$retval = '';
 		foreach ($form['groups'] as $group) {
-			$retval .= $this->renderFormGroup($group, count($form['groups']) == 1 ? false : true, $namespace);
+			$retval .= $this->renderFormGroup($group, count($form['groups']) == 1 ? false : true, $namespace, $readonly);
 		}
 		foreach ($form['tabs'] as $tab) {
 			
@@ -517,16 +519,16 @@ class Standard_Controller_Model extends Sodapop_Controller {
 		return $retval;
 	}
 
-	protected function renderFormGroup($group, $showFieldset = true, $namespace = '') {
+	protected function renderFormGroup($group, $showFieldset = true, $namespace = '', $readonly = false) {
 		$retval = '';
 		$retval .= '<fieldgroup label="'.htmlentities($group['label']).'" border="'.($showFieldset ? 'true' : 'false').'">';
 		foreach ($group['fields'] as $field) {
 			if (isset($field['subtable']) && $field['subtable']) {
 				$retval .= $this->renderSubtable();
 			} else if ($field['type'] == 'form') {
-				$retval .= '<hidden id="'.$field['id'].'" value="'.$field['default'].'" />'.$this->renderForm($field['form'], $field['id']);
+				$retval .= '<hidden id="'.$field['id'].'" value="'.$field['default'].'" />'.$this->renderForm($field['form'], $field['id'], $readonly);
 			} else {
-				$retval .= '<'.strtolower($field['type']).'input id="'.($namespace != '' ? $namespace.'_' : '').$field['id'].'" label="'.$field['label'].'" array="'.($field['arrayFlag'] ? 'true' : 'false').'" default="'.htmlentities(serialize($field['default'])).'" />';
+				$retval .= '<'.strtolower($field['type']).'input id="'.($namespace != '' ? $namespace.'_' : '').$field['id'].'" label="'.$field['label'].'" array="'.($field['arrayFlag'] ? 'true' : 'false').'" default="'.htmlentities(serialize($field['default'])).'" readonly="'.($readonly ? 'true' : 'false' ).'" />';
 			}
 		}
 		$retval .= '</fieldgroup>';

@@ -64,6 +64,12 @@ class Themes_Monochrome_Widgets {
 		return '<div '.Themes_Monochrome_Widgets::standardArgs($args, 'screen-footer').'>'.$innerContent.'<br style="clear: both;" /></div>';
 	}
 
+	public static function formbuttonTag($args = array()) {
+		$url = $args['url'];
+		$label = $args['label'];
+		return '<div '.Themes_Monochrome_Widgets::standardArgs($args, 'action-buttons-form-button', array('label', 'url')).'><input type="button" value="'.htmlentities($label).'" onclick="this.form.action = \''.$url.'\'; this.form.submit();" /></div>';
+	}
+
 	public static function gridObject($args = array(), $innerXML = '') {
 		$xml = simplexml_load_string($innerXML);
 		$retval = '<table '.Themes_Monochrome_Widgets::standardArgs($args, 'screen-grid').'>';
@@ -115,12 +121,14 @@ class Themes_Monochrome_Widgets {
 		return '<input type="hidden" id="'.$args['id'].'" name="'.$args['id'].'" value="'.htmlentities($args['value']).'" />';
 	}
 
+	public static function javascriptTag($args = array()) {
+		return '<script src="'.$args['file'].'"></script>';
+	}
+
 	public static function listbuttonTag($args = array()) {
 		$link = $args['link'];
-		unset ($args['link']);
 		$label = $args['label'];
-		unset ($args['label']);
-		return '<div '.Themes_Monochrome_Widgets::standardArgs($args, 'action-buttons-list-button').'><form action="'.$link.'" method="post"><input type="submit" value="'.htmlentities($label).'" /></form></div>';
+		return '<div '.Themes_Monochrome_Widgets::standardArgs($args, 'action-buttons-list-button', array('label', 'link')).'><form action="'.$link.'" method="post"><input type="submit" value="'.htmlentities($label).'" /></form></div>';
 	}
 
 
@@ -169,9 +177,30 @@ class Themes_Monochrome_Widgets {
 			$retval .= '<label for="'.$id.($array ? '[]' : '').'">'.$args['label'].'</label>';
 		}
 		if ($array) {
-			
+			$items = unserialize($args['default']);
+			if (isset($args['readonly']) && $args['readonly'] == 'true' ) {
+				foreach ($items as $item) {
+					$retval .= '<span '.Themes_Monochrome_Widgets::standardArgs($args, 'field-string-readonly', array('id', 'label', 'default', 'array', 'readonly')).'>'.($item == '' ? '&#60;empty&#62;' : htmlspecialchars($item)).'</span><br />';
+				}
+			} else {
+				$retval .= '<div id="'.$id.'-container">';
+				foreach ($items as $item) {
+					$i = 1;
+					if ($item != '') {
+						$retval .= '<div id="'.$id.'_'.$i.'"><input type="text" name="'.$id.'[]" id="'.$id.'" maxlength="255" '.Themes_Monochrome_Widgets::standardArgs($args, 'field-string', array('id', 'label', 'default', 'array', 'readonly')).' value="'.htmlspecialchars($item).'" /><input type="button" value="Remove" onclick="removeArrayField(\''.$id.'_'.$i.'\');" /></div>';
+						$i++;
+					}
+				}
+				$jsHtmlString = "&lt;div id=&quot;".$id."_' + rand + '&quot;&gt;&lt;input type=&quot;text&quot; name=&quot;".$id."[]&quot; id=&quot;".$id."&quot; maxlength=&quot;255&quot; ".htmlentities(Themes_Monochrome_Widgets::standardArgs($args, 'field-string', array('id', 'label', 'default', 'array', 'readonly')))." value=&quot;&quot; /&gt;&lt;input type=&quot;button&quot; value=&quot;Remove&quot; onclick=&quot;removeArrayField(\'".$id."_' + rand + '\');&quot; /&gt;&lt;/div&gt;";
+				$retval .= '</div><div><input type="button" value="Add" onclick="rand = Math.ceil(Math.random() * 1000000); addArrayField(\''.$id.'-container\', \''.$jsHtmlString.'\');" /></div>';
+				
+			}
 		} else {
-			$retval .= '<input type="text" name="'.$id.'" id="'.$id.'" maxlength="255" '.Themes_Monochrome_Widgets::standardArgs($args, 'field-string', array('id', 'label', 'default', 'array')).' value="'.unserialize($args['default']).'" />';
+			if (isset($args['readonly']) && $args['readonly'] == 'true' ) {
+				$retval .= '<span '.Themes_Monochrome_Widgets::standardArgs($args, 'field-string-readonly', array('id', 'label', 'default', 'array', 'readonly')).'>'.(unserialize($args['default']) == '' ? '&#60;empty&#62;' : htmlspecialchars(unserialize($args['default']))).'</span>';
+			} else {
+				$retval .= '<input type="text" name="'.$id.'" id="'.$id.'" maxlength="255" '.Themes_Monochrome_Widgets::standardArgs($args, 'field-string', array('id', 'label', 'default', 'array', 'readonly')).' value="'.unserialize($args['default']).'" />';
+			}
 		}
 		return $retval.'</div>';
 	}

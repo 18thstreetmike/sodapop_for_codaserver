@@ -351,17 +351,19 @@ class Toasty {
 					
 					$object = simplexml_load_string($file);
 					if (!$object) {
+						//var_dump(libxml_get_errors());
+					
 						$file = $this->makeWellFormed($file);
+						
 						$object = simplexml_load_string($file);
 					}
 
-					// echo $file; die;
-					//var_dump(libxml_get_errors());
+					//echo $file; die;
 					// check to see if the resulting file is actually XML
                     if (!$object) {
 						throw new Exception('File not valid XML.');
                     } else {
-                        $output = $this->processNode($object);
+						$output = $this->processNode($object);
                     }
                 } else {
                     $output = $file;

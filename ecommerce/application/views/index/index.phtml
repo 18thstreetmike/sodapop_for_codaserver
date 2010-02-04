@@ -1,5 +1,9 @@
 <div style="padding: 1em;">
+	<script>
+		
+	</script>
     <h3>Welcome, <?= $this->application->user->first_name ?>!</h3>
     <p><?= $this->application->description ?></p>
-    <p><strong>[<?= var_dump($this->order) ?>]</strong></p>
+	<p><a onclick="addElt()">Click me!</a></p>
+	<div id="parentElt"></div>
 </div>

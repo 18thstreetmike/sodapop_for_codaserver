@@ -4,6 +4,9 @@
 	<?php foreach ($this->stylesheets as $stylesheet) { ?>
 	    <stylesheet file="<?= $this->baseUrl ?><?= $stylesheet ?>" />
 	<?php } ?>
+	<?php foreach ($this->javascripts as $javascript) { ?>
+	    <javascript file="<?= $this->baseUrl ?><?= $javascript ?>" />
+	<?php } ?>
     </metadata>
     <screen>
 	<header>

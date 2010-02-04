@@ -288,3 +288,8 @@ div.field-container-div {
 div.field-container-div label {
 	display: block;
 }
+
+span.field-string-readonly {
+	font-style: italic;
+	margin-left: 1em;
+}

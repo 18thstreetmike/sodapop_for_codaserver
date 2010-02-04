@@ -95,6 +95,7 @@ customers:
         - name: first_name
         - name: last_name
         - name: email_address
+        - name: nicknames
     - group: Billing Address
       fields:
         - name: billing_address_id

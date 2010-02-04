@@ -6,7 +6,7 @@
 	<actionbuttons label="Actions">
 		<?php foreach ($this->actions as $action) { ?>
 			<?php foreach ($action as $link => $label) { ?>
-			<listbutton label="<?= $label ?>" link="<?= $this->baseUrl.'/'.$link ?>" />
+			<formbutton label="<?= $label ?>" url="<?= $this->baseUrl.'/'.$link ?>" />
 			<?php } ?>
 		<?php } ?>
 	</actionbuttons>

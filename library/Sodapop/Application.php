@@ -235,20 +235,31 @@ class Sodapop_Application {
 	}
 
 	public function loadControllerAction($controller, $action, $request, $view, $baseUrl) {
-		$actionMethod = $action.'Action';
-		@include_once($this->config['controller.directory'].'/'.ucfirst($controller).'Controller.php');
-		$controllerName = ucfirst($controller).'Controller';
-		$controllerObj = new $controllerName (&$this, $request, $view);
-		$controllerObj->controller = $controller;
-		$controllerObj->action = $action;
-		$controllerObj->setViewPath($controller.'/'.$action);
-		$controllerObj->view->baseUrl = $baseUrl;
-		$controllerObj->preDispatch();
-		$controllerObj->$actionMethod();
-		$controllerObj->preDispatch();
-		$output = $controllerObj->render();
-		$controllerObj->cleanup();
-		echo $output;
+		try {
+			$actionMethod = $action.'Action';
+			@include_once($this->config['controller.directory'].'/'.ucfirst($controller).'Controller.php');
+			$controllerName = ucfirst($controller).'Controller';
+			$controllerObj = new $controllerName (&$this, $request, $view);
+			$controllerObj->controller = $controller;
+			$controllerObj->action = $action;
+			$controllerObj->setViewPath($controller.'/'.$action);
+			$controllerObj->view->baseUrl = $baseUrl;
+			$controllerObj->preDispatch();
+			$controllerObj->$actionMethod();
+			$controllerObj->preDispatch();
+			$output = $controllerObj->render();
+			$controllerObj->cleanup();
+			echo $output;
+		} catch (Sodapop_Database_Exception $e) {
+			if ($e->getCode() == '1005') {
+				// if session timeout, try to kill the session user and reload
+				unset($_SESSION['user']);
+				$this->loadControllerAction($controller, $action, $request, $view, $baseUrl);
+			} else {
+				// otherwise, throw it again
+				throw $e;
+			}
+		}
 		exit();
 	}
 
