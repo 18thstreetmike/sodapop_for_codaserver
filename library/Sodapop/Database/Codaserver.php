@@ -227,7 +227,7 @@ class Sodapop_Database_Codaserver extends Sodapop_Database_Abstract {
 
 	public function runParameterizedUpdate($statement, $params) {
 		foreach ($params as $key => $value) {
-			$statement = str_replace(':'.$key, str_replace("'", "''", $value), $statement);
+			$statement = str_replace(':{'.$key.'}', str_replace("'", "''", $value), $statement);
 		}
 		try {
 			$result = codaserver_query($this->codaserverConnection, $statement);
@@ -312,15 +312,19 @@ class Sodapop_Database_Codaserver extends Sodapop_Database_Abstract {
 				} else {
 					$setClause = \'\';
 					foreach($this->fields as $fieldName => $newValue) {
-						if ($setClause != \'\') {
-							$setClause .= \',\';
+						if ($newValue != $this->oldFields[$fieldName]) {
+							if ($setClause != \'\') {
+								$setClause .= \',\';
+							}
+							$setClause .= Sodapop_Inflector::camelCapsToUnderscores($fieldName)." = \':{".$fieldName."}\'";
 						}
-						$setClause .= Sodapop_Inflector::camelCapsToUnderscores($fieldName)." = \':".$fieldName."\'";
 					}
-					if ($action == \'INSERT\') {
-						$_SESSION[\'user\']->connection->runParameterizedUpdate("INSERT INTO '.$tableName.' SET ".$setClause." WHERE ID = \'".$this->id."\' ", $this->fields);
-					} else if ($action == \'UPDATE\') {
-						$_SESSION[\'user\']->connection->runParameterizedUpdate("UPDATE '.$tableName.' SET ".$setClause." WHERE ID = \'".$this->id."\' ", $this->fields);
+					if (trim($setClause) != "") {
+						if ($action == \'INSERT\') {
+							$_SESSION[\'user\']->connection->runParameterizedUpdate("INSERT INTO '.$tableName.' SET ".$setClause." WHERE ID = \'".$this->id."\' ", $this->fields);
+						} else if ($action == \'UPDATE\') {
+							$_SESSION[\'user\']->connection->runParameterizedUpdate("UPDATE '.$tableName.' SET ".$setClause." WHERE ID = \'".$this->id."\' ", $this->fields);
+						}
 					}
 				}
 			}';
@@ -352,18 +356,22 @@ class Sodapop_Database_Codaserver extends Sodapop_Database_Abstract {
 			protected function save($action = \'UPDATE\') {
 				$setClause = \'\';
 				foreach($this->fields as $fieldName => $newValue) {
-				if ($setClause != \'\') {
-					$setClause .= \',\';
+					if ($newValue != $this->oldFields[$fieldName]) {
+						if ($setClause != \'\') {
+							$setClause .= \',\';
+						}
+						$setClause .= Sodapop_Inflector::camelCapsToUnderscores($fieldName)." = \':{".$fieldName."}\'";
+					}
 				}
-				$setClause .= Sodapop_Inflector::camelCapsToUnderscores($fieldName)." = \':".$fieldName."\'";
-				}
-				if ($action == \'UPDATE\') {
-					$_SESSION[\'user\']->connection->runParameterizedUpdate("UPDATE '.$formName.' SET ".$setClause." WHERE ID = \'".$this->id."\' ", $this->fields);
-				} else {
-					foreach($this->formStatuses as $statusArray) {
-						if (strtoupper($action) == $statusArray[\'verb\']) {
-							$_SESSION[\'user\']->connection->runParameterizedUpdate(strtouppser($action)." '.$formName.' SET ".$setClause." WHERE ID = \'".$this->id."\' ", $this->fields);
-							break;
+				if (trim($setClause) != "") {
+					if ($action == \'UPDATE\') {
+						$_SESSION[\'user\']->connection->runParameterizedUpdate("UPDATE '.$formName.' SET ".$setClause." WHERE ID = \'".$this->id."\' ", $this->fields);
+					} else {
+						foreach($this->formStatuses as $statusArray) {
+							if (strtoupper($action) == $statusArray[\'verb\']) {
+								$_SESSION[\'user\']->connection->runParameterizedUpdate(strtouppser($action)." '.$formName.' SET ".$setClause." WHERE ID = \'".$this->id."\' ", $this->fields);
+								break;
+							}
 						}
 					}
 				}

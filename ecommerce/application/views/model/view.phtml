@@ -1,7 +1,26 @@
 <page>
 	<form action="<?= $this->baseUrl ?>/<?= $this->controller ?>/update" method="post">
 	<h3><?= $this->actionName ?> <?= $this->entityName ?></h3>
+	<?php if ($this->successMessage) { ?>
+		<successbox>
+			<p><?= $this->successMessage ?></p>
+		</successbox>
+	<?php } else if ($this->errorMessage) { ?>
+		<errorbox>
+			<p><?= $this->errorMessage ?></p>
+			<?php if (isset($this->errors)) { ?>
+			<ul>
+				<?php foreach ($this->errors as $error) { ?>
+				<li><?= $error ?></li>
+				<?php } ?>
+			</ul>
+			<?php } ?>
+		</errorbox>
+	<?php } ?>
 	<?= $this->renderedForm ?>
+	<?php if (!is_null($this->id)) { ?>
+		<hidden id="id" value="<?= $this->id ?>" />
+	<?php } ?>
 	<?php if (count($this->actions) > 0) { ?>
 	<actionbuttons label="Actions">
 		<?php foreach ($this->actions as $action) { ?>

@@ -351,11 +351,14 @@ class Toasty {
 					
 					$object = simplexml_load_string($file);
 					if (!$object) {
+						//echo $file; die;
 						//var_dump(libxml_get_errors());
 					
 						$file = $this->makeWellFormed($file);
-						
+						// echo $file;
 						$object = simplexml_load_string($file);
+						// var_dump(libxml_get_errors());
+					
 					}
 
 					//echo $file; die;
@@ -646,6 +649,9 @@ class Toasty {
 			),
 			$file
 		);
+		require_once('WellFormer.class.php');
+		$wellFormer = new WellFormer($file);
+		$file = $wellFormer->fix();
 		libxml_clear_errors();
 		return $file;
 	}

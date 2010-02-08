@@ -13,6 +13,21 @@ class Standard_Controller_Model extends Sodapop_Controller {
 	protected $joinedTables = array();
 	protected $selectedColumns = array();
 
+	public function __call($name, $arguments) {
+		if (substr($name, -6) == 'Action') {
+			$actionName = substr($name, 0, strlen($name) - 6);
+			if ($this->model instanceof Sodapop_Database_Form_Abstract) {
+
+			} else {
+				if ($this->user->hasTablePermission(strtolower(Sodapop_Inflector::camelCapsToUnderscores($this->modelClassname, false)), strtoupper($actionName))) {
+					$this->viewAction($actionName);
+				} else {
+					$this->viewAction();
+				}
+			}
+		}
+	}
+
 	public function preDispatch() {
 		$modelClassname = str_replace('Controller','', get_class($this));
 		$this->modelClassname = $modelClassname;
@@ -52,16 +67,33 @@ class Standard_Controller_Model extends Sodapop_Controller {
 
 	public function viewAction($actionName = 'View') {
 		$this->viewPath = 'model/view';
-		$id = isset($this->request->id) ? $this->request->id : isset($this->request->numeric[0]) ? $this->request->numeric[0] : null;
-		if (is_null($id)) {
-			$this->redirect($this->view->baseUrl.'/'.strtolower($this->modelClassname).'/index');
-		}
+		$id = (isset($this->request->variables['id']) ? $this->request->id : (count($this->request->numeric) > 0 && isset($this->request->numeric[0]) ? $this->request->numeric[0] : null));
 		$filterVars = $this->processListFilterRequest();
 		$modelClassname = $this->modelClassname;
-		$model = new $modelClassname($id);
+		if (!is_null($id)) {
+			$model = new $modelClassname($id);
+		} else {
+			$model = new $modelClassname();
+		}
+
 		$this->view->actionName = ucwords($actionName);
 		$this->view->entityName = ucwords(str_replace('_', ' ', Sodapop_Inflector::camelCapsToUnderscores($modelClassname)));
 		$this->view->controller = $this->modelClassname;
+		if ($this->request->isPost()) {
+			try {
+				$this->processPost($actionName, &$model);
+				$id = $model->id;
+				$this->view->successMessage = 'Your information was saved!';
+			} catch (Sodapop_Database_Exception $e) {
+				if (count($e->getErrors()) == 1) {
+					$this->view->errorMessage = $e->getMessage();
+				} else {
+					$this->view->errorMessage = 'The following errors have occurred:';
+					$this->view->errors = $e->getErrors();
+				}
+			}
+		}
+		$this->view->id = $id;
 		$form = $this->getModelForm(&$model);
 		$this->view->form = $form;
 		$actions = $this->getNextActions($model);
@@ -481,7 +513,7 @@ class Standard_Controller_Model extends Sodapop_Controller {
 					$fieldArray['arrayFlag'] = $fieldDefinition['array_flag'] == '1';
 					if ($fieldDefinition['type_name'] == 'REFERENCE') {
 						$referenceModelClassname = Sodapop_Inflector::underscoresToCamelCaps(strtolower($fieldDefinition['ref_table_name']), false);
-						$referenceModel = new $referenceModelClassname($model->$fieldName->id ? $model->$fieldName->id : $fieldDefinition['default_value']);
+						$referenceModel = new $referenceModelClassname(isset($model->$fieldName->id) ? $model->$fieldName->id : $fieldDefinition['default_value']);
 						if ($field['visualization'] == 'editor') {
 							$fieldArray['type'] = 'form';
 							$fieldArray['form'] = $this->getModelForm($referenceModel);
@@ -495,7 +527,7 @@ class Standard_Controller_Model extends Sodapop_Controller {
 								$fieldArray['options'][$optionRow[0]] = $optionRow[1];
 							}
 						}
-						$fieldArray['default'] = $model->$fieldName->id ? $model->$fieldName->id : $fieldDefinition['default_value'];
+						$fieldArray['default'] = isset($model->$fieldName->id) ? $model->$fieldName->id : $fieldDefinition['default_value'];
 					} else {
 						$fieldArray['type'] = $fieldDefinition['type_name'];
 						$fieldArray['default'] = $model->$fieldName ? $model->$fieldName : $fieldDefinition['default_value'];
@@ -506,6 +538,44 @@ class Standard_Controller_Model extends Sodapop_Controller {
 			}
 		}
 		return $retval;
+	}
+
+	protected function processPost($actionName, $model) {
+		$fieldDefinitions = $model->getFieldDefinitions();
+		$invalidFields = array('id', 'modDate', 'createDate', 'modUserName', 'createUserName', 'activeFlag');
+		foreach ($fieldDefinitions as $fieldName => $fieldDefinition) {
+			if (!in_array($fieldName,$invalidFields)) {
+				if ($fieldDefinition['type_name'] != 'REFERENCE') {
+					if (isset($this->request->variables[$this->createAlias(get_class($model)).'_'.strtolower($fieldDefinition['column_name'])])) {
+						$model->$fieldName = $this->request->variables[$this->createAlias(get_class($model)).'_'.strtolower($fieldDefinition['column_name'])];
+					}
+				} else {
+					$referenceModelClassname = Sodapop_Inflector::underscoresToCamelCaps(strtolower($fieldDefinition['ref_table_name']), false);
+					$referenceColumnPrefix = $this->createAlias(get_class($model)).'_'.strtolower($fieldDefinition['column_name']);
+					if (trim($this->request->variables[$this->createAlias(get_class($model)).'_'.strtolower($fieldDefinition['column_name'])]) != '') {
+						$referenceModel = new $referenceModelClassname($this->request->variables[$referenceColumnPrefix]);
+						$referenceAction = 'update';
+					} else {
+						$referenceModel = new $referenceModelClassname();
+						$referenceAction = 'insert';
+					}
+					$referenceFieldDefinitions = $referenceModel->getFieldDefinitions();
+					foreach ($referenceFieldDefinitions as $referenceFieldName => $referenceFieldDefinition) {
+						if (isset($this->request->variables[$referenceColumnPrefix.'_'.$this->createAlias(get_class($referenceModel)).'_'.strtolower($referenceFieldDefinition['column_name'])]) && !in_array($referenceFieldName,$invalidFields)) {
+							if ($referenceFieldDefinition['type_name'] != 'REFERENCE') {
+								$referenceModel->$referenceFieldName = $this->request->variables[$referenceColumnPrefix.'_'.$this->createAlias(get_class($referenceModel)).'_'.strtolower($referenceFieldDefinition['column_name'])];
+							} else {
+								$referenceReferenceModelClassname = Sodapop_Inflector::underscoresToCamelCaps(strtolower($referenceFieldDefinition['ref_table_name']), false);
+								$referenceModel->$referenceFieldName = new $referenceReferenceModelClassname($this->request->variables[$referenceColumnPrefix.'_'.$this->createAlias(get_class($referenceModel)).'_'.strtolower($referenceFieldDefinition['column_name'])]);
+							}
+						}
+					}
+					$referenceModel->$referenceAction();
+					$model->$fieldName = $referenceModel;
+				}
+			}
+		}
+		$model->$actionName();
 	}
 
 	protected function renderForm($form, $namespace = '', $readonly = false) {
@@ -560,6 +630,9 @@ class Standard_Controller_Model extends Sodapop_Controller {
 				}
 			}
 		} else {
+			if (!$model->id && $this->user->hasTablePermission(strtolower(Sodapop_Inflector::camelCapsToUnderscores($this->modelClassname, false)), 'INSERT')) {
+				$retval[] = array(strtolower(substr($this->modelClassname, 0, 1)).substr($this->modelClassname, 1).'/insert' => 'Insert');
+			}
 			if ($model->id && $this->user->hasTablePermission(strtolower(Sodapop_Inflector::camelCapsToUnderscores($this->modelClassname, false)), 'UPDATE')) {
 				$retval[] = array(strtolower(substr($this->modelClassname, 0, 1)).substr($this->modelClassname, 1).'/update' => 'Update');
 			}

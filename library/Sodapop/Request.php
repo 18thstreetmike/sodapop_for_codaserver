@@ -28,6 +28,8 @@ class Sodapop_Request {
 	public function  __get($name) {
 		if ($name == 'numeric') {
 			return $this->requestVariablesNumeric;
+		} else if ($name == 'variables') {
+			return $this->requestVariables;
 		} else {
 			return $this->requestVariables[$name];
 		}

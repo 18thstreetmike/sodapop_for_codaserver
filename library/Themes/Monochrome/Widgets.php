@@ -128,7 +128,7 @@ class Themes_Monochrome_Widgets {
 	public static function listbuttonTag($args = array()) {
 		$link = $args['link'];
 		$label = $args['label'];
-		return '<div '.Themes_Monochrome_Widgets::standardArgs($args, 'action-buttons-list-button', array('label', 'link')).'><form action="'.$link.'" method="post"><input type="submit" value="'.htmlentities($label).'" /></form></div>';
+		return '<div '.Themes_Monochrome_Widgets::standardArgs($args, 'action-buttons-list-button', array('label', 'link')).'><form action="'.$link.'" method="get"><input type="submit" value="'.htmlentities($label).'" /></form></div>';
 	}
 
 
@@ -177,18 +177,22 @@ class Themes_Monochrome_Widgets {
 			$retval .= '<label for="'.$id.($array ? '[]' : '').'">'.$args['label'].'</label>';
 		}
 		if ($array) {
-			$items = unserialize($args['default']);
+			$items = unserialize(html_entity_decode($args['default']));
 			if (isset($args['readonly']) && $args['readonly'] == 'true' ) {
-				foreach ($items as $item) {
-					$retval .= '<span '.Themes_Monochrome_Widgets::standardArgs($args, 'field-string-readonly', array('id', 'label', 'default', 'array', 'readonly')).'>'.($item == '' ? '&#60;empty&#62;' : htmlspecialchars($item)).'</span><br />';
+				if (is_array($items)) {
+					foreach ($items as $item) {
+						$retval .= '<span '.Themes_Monochrome_Widgets::standardArgs($args, 'field-string-readonly', array('id', 'label', 'default', 'array', 'readonly')).'>'.($item == '' ? '&#60;empty&#62;' : htmlspecialchars($item)).'</span><br />';
+					}
 				}
 			} else {
 				$retval .= '<div id="'.$id.'-container">';
-				foreach ($items as $item) {
-					$i = 1;
-					if ($item != '') {
-						$retval .= '<div id="'.$id.'_'.$i.'"><input type="text" name="'.$id.'[]" id="'.$id.'" maxlength="255" '.Themes_Monochrome_Widgets::standardArgs($args, 'field-string', array('id', 'label', 'default', 'array', 'readonly')).' value="'.htmlspecialchars($item).'" /><input type="button" value="Remove" onclick="removeArrayField(\''.$id.'_'.$i.'\');" /></div>';
-						$i++;
+				if (is_array($items)) {
+					foreach ($items as $item) {
+						$i = 1;
+						if ($item != '') {
+							$retval .= '<div id="'.$id.'_'.$i.'"><input type="text" name="'.$id.'[]" id="'.$id.'" maxlength="255" '.Themes_Monochrome_Widgets::standardArgs($args, 'field-string', array('id', 'label', 'default', 'array', 'readonly')).' value="'.htmlspecialchars($item).'" /><input type="button" value="Remove" onclick="removeArrayField(\''.$id.'_'.$i.'\');" /></div>';
+							$i++;
+						}
 					}
 				}
 				$jsHtmlString = "&lt;div id=&quot;".$id."_' + rand + '&quot;&gt;&lt;input type=&quot;text&quot; name=&quot;".$id."[]&quot; id=&quot;".$id."&quot; maxlength=&quot;255&quot; ".htmlentities(Themes_Monochrome_Widgets::standardArgs($args, 'field-string', array('id', 'label', 'default', 'array', 'readonly')))." value=&quot;&quot; /&gt;&lt;input type=&quot;button&quot; value=&quot;Remove&quot; onclick=&quot;removeArrayField(\'".$id."_' + rand + '\');&quot; /&gt;&lt;/div&gt;";
@@ -197,7 +201,7 @@ class Themes_Monochrome_Widgets {
 			}
 		} else {
 			if (isset($args['readonly']) && $args['readonly'] == 'true' ) {
-				$retval .= '<span '.Themes_Monochrome_Widgets::standardArgs($args, 'field-string-readonly', array('id', 'label', 'default', 'array', 'readonly')).'>'.(unserialize($args['default']) == '' ? '&#60;empty&#62;' : htmlspecialchars(unserialize($args['default']))).'</span>';
+				$retval .= '<span '.Themes_Monochrome_Widgets::standardArgs($args, 'field-string-readonly', array('id', 'label', 'default', 'array', 'readonly')).'>'.(unserialize(html_entity_decode($args['default'])) == '' ? '&#60;empty&#62;' : htmlspecialchars(unserialize(html_entity_decode($args['default'])))).'</span>';
 			} else {
 				$retval .= '<input type="text" name="'.$id.'" id="'.$id.'" maxlength="255" '.Themes_Monochrome_Widgets::standardArgs($args, 'field-string', array('id', 'label', 'default', 'array', 'readonly')).' value="'.unserialize($args['default']).'" />';
 			}
@@ -215,6 +219,10 @@ class Themes_Monochrome_Widgets {
 			$inline = true;
 		}
 		return (!$inline ? '<div class="submit-container">' : '').'<input type="submit" value="'.htmlentities($args['label']).'" '.Themes_Monochrome_Widgets::standardArgs($args, 'input-password', array('value', 'label')).' />'.(!$inline ? '</div>' : '');
+	}
+
+	public static function successboxContainer($args = array(), $innerContent = '') {
+		return '<div class="success-box">'.$innerContent.'</div>';
 	}
 
 	public static function textTag ($args = array()) {
