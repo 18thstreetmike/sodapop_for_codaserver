@@ -307,12 +307,12 @@ class Sodapop_Database_Codaserver extends Sodapop_Database_Abstract {
 			}
 
 			protected function save($action = \'UPDATE\') {
-				if ($action == \'DELETE\' && $this->id) {
+				if (strtoupper($action) == \'DELETE\' && $this->id) {
 					$_SESSION[\'user\']->connection->runQuery("DELETE FROM '.$tableName.' WHERE ID = \'".$this->id."\' ");
 				} else {
 					$setClause = \'\';
 					foreach($this->fields as $fieldName => $newValue) {
-						if ($newValue != $this->oldFields[$fieldName]) {
+						if (!isset($this->oldFields[$fieldName]) || $newValue != $this->oldFields[$fieldName]) {
 							if ($setClause != \'\') {
 								$setClause .= \',\';
 							}
@@ -320,10 +320,12 @@ class Sodapop_Database_Codaserver extends Sodapop_Database_Abstract {
 						}
 					}
 					if (trim($setClause) != "") {
-						if ($action == \'INSERT\') {
-							$_SESSION[\'user\']->connection->runParameterizedUpdate("INSERT INTO '.$tableName.' SET ".$setClause." WHERE ID = \'".$this->id."\' ", $this->fields);
-						} else if ($action == \'UPDATE\') {
-							$_SESSION[\'user\']->connection->runParameterizedUpdate("UPDATE '.$tableName.' SET ".$setClause." WHERE ID = \'".$this->id."\' ", $this->fields);
+						if (strtoupper($action) == \'INSERT\') {
+							$statement = "INSERT INTO '.strtolower($tableName).' SET ".$setClause;
+							$result = $_SESSION[\'user\']->connection->runParameterizedUpdate($statement, $this->fields);
+							$this->id = $result["data"][0][0];
+						} else if (strtoupper($action) == \'UPDATE\') {
+							$_SESSION[\'user\']->connection->runParameterizedUpdate("UPDATE '.strtolower($tableName).' SET ".$setClause." WHERE ID = \'".$this->id."\' ", $this->fields);
 						}
 					}
 				}
@@ -356,7 +358,7 @@ class Sodapop_Database_Codaserver extends Sodapop_Database_Abstract {
 			protected function save($action = \'UPDATE\') {
 				$setClause = \'\';
 				foreach($this->fields as $fieldName => $newValue) {
-					if ($newValue != $this->oldFields[$fieldName]) {
+					if (!isset($this->oldFields[$fieldName]) || $newValue != $this->oldFields[$fieldName]) {
 						if ($setClause != \'\') {
 							$setClause .= \',\';
 						}
@@ -365,11 +367,14 @@ class Sodapop_Database_Codaserver extends Sodapop_Database_Abstract {
 				}
 				if (trim($setClause) != "") {
 					if ($action == \'UPDATE\') {
-						$_SESSION[\'user\']->connection->runParameterizedUpdate("UPDATE '.$formName.' SET ".$setClause." WHERE ID = \'".$this->id."\' ", $this->fields);
+						$_SESSION[\'user\']->connection->runParameterizedUpdate("UPDATE '.strtolower($formName).' SET ".$setClause." WHERE ID = \'".$this->id."\' ", $this->fields);
 					} else {
 						foreach($this->formStatuses as $statusArray) {
 							if (strtoupper($action) == $statusArray[\'verb\']) {
-								$_SESSION[\'user\']->connection->runParameterizedUpdate(strtouppser($action)." '.$formName.' SET ".$setClause." WHERE ID = \'".$this->id."\' ", $this->fields);
+								$result = $_SESSION[\'user\']->connection->runParameterizedUpdate(strtouppser($action)." '.strtolower($formName).' SET ".$setClause." ".(!is_null($this->id) ? "WHERE ID = \'".$this->id."\' " : "" ), $this->fields);
+								if (is_null($this->id)) {
+									$this->id = $result["data"][0][0];
+								}
 								break;
 							}
 						}
